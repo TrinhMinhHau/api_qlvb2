@@ -80,6 +80,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh
 
     }
 
+    // Phát bằng
     public class ThongTinPhatBangModel
     {
         public string CccdNguoiNhanBang { get; set; } = string.Empty;
@@ -92,6 +93,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh
 
     }
 
+    //Bản sao
     public class VanBangBanSaoModel
     {
         public int TrangThaiDuyet { get; set; } = 1;
@@ -100,6 +102,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh
         public string LyDoCap { get; set; } = null!;
         public int SoBanCap { get; set; } = 1;
     }
+
+    //ImportView
     public class HocSinhImportViewModel : HocSinhModel
     {
         public string? SoHieuVanBang { get; set; } = string.Empty;
@@ -119,6 +123,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh
         public string? Mon6 { get; set; } = string.Empty;
     }
 
+    //Get cccd
     public class HocSinhViewModel : HocSinhModel
     {
         public string NamThi { get; set; } = string.Empty;
@@ -142,6 +147,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh
         public string NamThi { get; set; } = string.Empty;
     }
 
+    //ViewInbang
     public class HocSinhInBangModel : HocSinhModel
     {
         public string? NguoiKyBang { get; set; } = string.Empty;
@@ -175,8 +181,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh
         public DateTime KhoaThi { get; set; }
     }
 
-
-
     public class HocSinhImportVM : HocSinhModel
     {
         public string? SoHieuVanBang { get; set; } = string.Empty;
@@ -193,10 +197,21 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh
         public string? Mon4 { get; set; } = string.Empty;
         public string? Mon5 { get; set; } = string.Empty;
         public string? Mon6 { get; set; } = string.Empty;
-
-
         public string? Message { get; set; } = string.Empty;
         public int ErrorCode { get; set; }
     }
+    public class HocSinhVM : HocSinhModel
+    {
+        public DanhMucTotNghiepModel DanhMucTotNghiep { get; set; } = new DanhMucTotNghiepModel();
+        public TruongModel Truong { get; set; } = new TruongModel();
+        public NamThiModel NamThi { get; set; } = new NamThiModel();
+        public KhoaThiModel KhoaThi { get; set; } = new KhoaThiModel();
+        public SoGocModel SoGoc { get; set; } = new SoGocModel();
+        public SoCapPhatBangModel SoCapPhatBang { get; set; } = new SoCapPhatBangModel();
+        public SoCapBanSaoModel SoCapBanSao { get; set; } = new SoCapBanSaoModel();
+        public DonYeuCauCapBanSaoModel DonYeuCauCapBanSao { get; set; } = new DonYeuCauCapBanSaoModel();
+        public HinhThucDaoTaoModel HinhThucDaoTao { get; set; } = new HinhThucDaoTaoModel();
 
+        public CauHinhModel CauHinhDonViHienTai { get; set; } = new CauHinhModel();
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using CenIT.DegreeManagement.CoreAPI.Bussiness;
 using CenIT.DegreeManagement.CoreAPI.Core.Caching;
 using CenIT.DegreeManagement.CoreAPI.Core.Utils;
+using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.Search;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh;
 using Microsoft.Extensions.Configuration;
@@ -44,6 +45,27 @@ namespace CenIT.DegreeManagement.CoreAPI.Caching
             _cache.AddCacheItem(rawKey, result, _masterCacheKey);
             return result;
         }
+
+        public List<HocSinhVM> GetTraCuuHocSinhDaDuaVaoSo(out int total, string idDonVi, TraCuuHocHinhTotNghiepSearchModel modelSearch)
+        {
+            string objectKey = EHashMd5.FromObject(modelSearch) + idDonVi;
+            string rawKey = string.Concat("HocSinhs-GetTraCuuHocSinhDaDuaVaoSo-", objectKey);
+            string rawKeyTotal = string.Concat(rawKey, "-Total");
+
+            total = 0;
+            int? cacheTotal = _cache.GetCacheKey<int>(rawKeyTotal);
+            total = cacheTotal ?? 0;
+
+            // See if the item is in the cache
+            List<HocSinhVM> hocSinhs = _cache.GetCacheKey<List<HocSinhVM>>(rawKey, _masterCacheKey)!;
+            if (hocSinhs != null) return hocSinhs;
+            // Item not found in cache - retrieve it and insert it into the cache
+            hocSinhs = _BL.GetTraCuuHocSinhDaDuaVaoSo(out total, idDonVi, modelSearch);
+            _cache.AddCacheItem(rawKey, hocSinhs);
+            _cache.AddCacheItem(rawKeyTotal, total);
+            return hocSinhs;
+        }
+
 
         /// <summary>
         /// Lấy số lượng phôi đã in theo năm học và hedaotao (Trang chủ - phòng)

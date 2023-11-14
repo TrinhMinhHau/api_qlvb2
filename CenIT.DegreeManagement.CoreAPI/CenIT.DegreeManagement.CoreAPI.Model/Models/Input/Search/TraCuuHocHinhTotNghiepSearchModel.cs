@@ -10,7 +10,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Input.Search
     public class TraCuuHocHinhTotNghiepSearchModel : SearchParamModel
     {
         public string? HoTen { get; set; }
-        public string CCCD { get; set; } = string.Empty;
+        public string? CCCD { get; set; } = string.Empty;
         public string NguoiThucHien { get; set; } = string.Empty;
 
     }

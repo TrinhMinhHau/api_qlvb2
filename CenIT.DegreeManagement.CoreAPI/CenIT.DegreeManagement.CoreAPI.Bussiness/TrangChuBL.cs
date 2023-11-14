@@ -5,7 +5,9 @@ using CenIT.DegreeManagement.CoreAPI.Core.Utils;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.Search;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DanhMuc;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh;
+using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.SoGoc;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -46,6 +48,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
         public string GetTraCuuHocSinhTotNghiep(string idDonVi, TraCuuHocHinhTotNghiepSearchModel modelSearch)
         {
             var matchHoTen = string.IsNullOrEmpty(modelSearch.HoTen) ? "" : $" HoTen: '{modelSearch.HoTen}',";
+            var matchCCCD = string.IsNullOrEmpty(modelSearch.CCCD) ? "" : $" CCCD: '{modelSearch.CCCD}',";
+
             var matchIdDonVi = string.IsNullOrEmpty(idDonVi) ? "" : $" {{$match: {{'Truong.IdCha': '{idDonVi}', }},}},";
             string order = MongoPipeline.GenerateSortPipeline(modelSearch.Order, modelSearch.OrderDir, "HoTen");
             int skip = (modelSearch.StartIndex - 1) * modelSearch.PageSize;
@@ -57,8 +61,9 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
                                   {{
                                     $match: {{
                                       Xoa: false,
-                                      CCCD: '{modelSearch.CCCD}',
-                                      {matchHoTen}
+                                      {matchHoTen},
+                                      {matchCCCD}
+
                                     }},
                                   }},
                                   {{
@@ -138,6 +143,143 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
             string json = ModelProvider.ExtractJsonFromMongo(data);
           
             return json;
+        }
+
+
+        /// <summary>
+        /// Tra cứu học sinh tốt nghiệp theo cccd và họ tên (Trang chủ - phòng)
+        /// </summary>
+        /// <param name="modelSearch"></param>
+        /// <returns></returns>
+        public List<HocSinhVM> GetTraCuuHocSinhDaDuaVaoSo(out int total, string idDonVi, TraCuuHocHinhTotNghiepSearchModel modelSearch)
+        {
+            var filterBuilder = Builders<HocSinhVM>.Filter;
+            var truongCollection = _mongoDatabase.GetCollection<TruongModel>(_collectionNameTruong);
+            var donYeuCauCollection = _mongoDatabase.GetCollection<DonYeuCauCapBanSaoModel>(_collectionDonYeuCauCapBanSaoName);
+            var soGocCollection = _mongoDatabase.GetCollection<SoGocModel>(_collectionNameSoGoc);
+            var namThiCollection = _mongoDatabase.GetCollection<NamThiModel>(_collectionNameNamThi);
+            var danhMucTotNghiepCollection = _mongoDatabase.GetCollection<DanhMucTotNghiepModel>(_collectionNameDanhMucTotNghiep);
+            var hinThucDaoTaoCollection = _mongoDatabase.GetCollection<HinhThucDaoTaoModel>(_collectionNamHinhThucDaoTao);
+
+            CauHinhModel cauHinhDonViQL = truongCollection.Find(x=>x.Id == idDonVi).FirstOrDefault().CauHinh;
+            var trangThais = new List<TrangThaiHocSinhEnum>
+                            {
+                                TrangThaiHocSinhEnum.DaDuaVaoSoGoc,
+                                TrangThaiHocSinhEnum.DaCapBang,
+                                TrangThaiHocSinhEnum.DaInBang,
+                                TrangThaiHocSinhEnum.DaNhanBang,
+                             };
+
+            var filters = new List<FilterDefinition<HocSinhVM>>
+            {
+                 //filterBuilder.Eq("TrangThai", modelSearch.TrangThai),
+                filterBuilder.Eq("Xoa", false),
+                !string.IsNullOrEmpty(modelSearch.HoTen)
+                    ? filterBuilder.Regex("HoTen", new BsonRegularExpression(modelSearch.HoTen, "i"))
+                    : null,
+                !string.IsNullOrEmpty(modelSearch.CCCD)
+                    ? filterBuilder.Regex("CCCD", new BsonRegularExpression(modelSearch.CCCD, "i"))
+                    : null,
+            };
+            filters.RemoveAll(filter => filter == null);
+
+            var combinedFilter = filterBuilder.And(filters);
+
+
+            var hocSinhs = _mongoDatabase.GetCollection<HocSinhVM>(_collectionHocSinhName)
+                    .Find(combinedFilter)
+                    .ToList()
+                     .Join(
+                          truongCollection.AsQueryable(),
+                          hs => hs.IdTruong,
+                          truong => truong.Id,
+                          (hs, truong) =>
+                          {
+                              hs.Truong = truong;
+                              hs.CauHinhDonViHienTai = cauHinhDonViQL;
+                              hs.DonYeuCauCapBanSao = donYeuCauCollection.Find(x => x.IdHocSinh == hs.Id && x.TrangThai == TrangThaiDonYeuCauEnum.DaDuyet).FirstOrDefault();
+                              return hs;
+                          }
+                      )
+                      .Join(
+                          danhMucTotNghiepCollection.AsQueryable(),
+                          hs => hs.IdDanhMucTotNghiep,
+                          dmtn => dmtn.Id,
+                          (hs, dmtn) =>
+                          {
+                              hs.DanhMucTotNghiep = dmtn;
+
+                              return hs;
+                          }
+                      )
+                      .Join(
+                          namThiCollection.AsQueryable(),
+                          hs => hs.DanhMucTotNghiep.IdNamThi,
+                          namThi => namThi.Id,
+                          (hs, namThi) =>
+                          {
+                              hs.NamThi = namThi;
+                              hs.KhoaThi = namThi.KhoaThis.Where(x => x.Id == hs.IdKhoaThi).FirstOrDefault();
+                              return hs;
+                          }
+                      )
+                        .Join(
+                          hinThucDaoTaoCollection.AsQueryable(),
+                          hs => hs.DanhMucTotNghiep.IdHinhThucDaoTao,
+                          htdt => htdt.Id,
+                          (hs, htdt) =>
+                          {
+                              hs.HinhThucDaoTao = htdt;
+                              return hs;
+                          }
+                      )
+                        .GroupJoin(
+                          soGocCollection.AsQueryable(),
+                          hs => hs.IdSoGoc,
+                          s => s.Id,
+                          (hs, sGroup) =>
+                          {
+                              var soGoc = sGroup.FirstOrDefault(); 
+                              if (soGoc == null)
+                              {
+                                  hs.SoGoc = new SoGocModel(); 
+                              }
+                              else
+                              {
+                                  hs.SoGoc = soGoc;
+                              }
+                              return hs;
+                          }
+                      )
+                      .Where(x=>x.Truong.IdCha == idDonVi)
+                      .ToList();
+
+            total = hocSinhs.Count;
+            switch (modelSearch.Order)
+            {
+                case "0":
+                    hocSinhs = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? hocSinhs.OrderBy(x => x.STT).ToList()
+                        : hocSinhs.OrderByDescending(x => x.STT).ToList();
+                    break;
+                case "1":
+                    hocSinhs = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? hocSinhs.OrderBy(x => x.HoTen.Split(' ').LastOrDefault()).ToList()
+                        : hocSinhs.OrderByDescending(x => x.HoTen.Split(' ').LastOrDefault()).ToList();
+                    break;
+                case "2":
+                    hocSinhs = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? hocSinhs.OrderBy(x => x.CCCD).ToList()
+                        : hocSinhs.OrderByDescending(x => x.CCCD).ToList();
+                    break;
+            }
+
+            if (modelSearch.PageSize >= 0)
+            {
+                hocSinhs = hocSinhs.Skip(modelSearch.PageSize * modelSearch.StartIndex).Take(modelSearch.PageSize).ToList();
+            }
+
+            return hocSinhs;
         }
 
         /// <summary>

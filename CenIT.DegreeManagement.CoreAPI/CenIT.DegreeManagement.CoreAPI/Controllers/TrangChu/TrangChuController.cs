@@ -1,10 +1,14 @@
-﻿using CenIT.DegreeManagement.CoreAPI.Caching;
+﻿using AutoMapper;
+using CenIT.DegreeManagement.CoreAPI.Caching;
 using CenIT.DegreeManagement.CoreAPI.Caching.DanhMuc;
 using CenIT.DegreeManagement.CoreAPI.Caching.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Caching.Sys;
 using CenIT.DegreeManagement.CoreAPI.Core.Caching;
 using CenIT.DegreeManagement.CoreAPI.Core.Helpers;
+using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.Search;
+using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh;
+using CenIT.DegreeManagement.CoreAPI.Models.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,12 +25,12 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.TrangChu
         private TrangChuCL _trangChuCL;
         private SysUserCL _sysUserCL;
         private TruongCL _truongCL;
-
+        private readonly IMapper _mapper;
 
 
         private MessageCL _messageCL;
 
-        public TrangChuController(ICacheService cacheService, IConfiguration configuration, ShareResource shareResource, ILogger<TrangChuController> logger) : base(cacheService, configuration)
+        public TrangChuController(ICacheService cacheService, IConfiguration configuration, IMapper mapper,ShareResource shareResource, ILogger<TrangChuController> logger) : base(cacheService, configuration)
         {
             _hocSinhCL = new HocSinhCL(cacheService, configuration);
             _logger = logger;
@@ -35,7 +39,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.TrangChu
             _messageCL = new MessageCL(cacheService);
             _sysUserCL = new SysUserCL(cacheService);
             _truongCL = new TruongCL(cacheService, configuration);
-
+            _mapper = mapper;
         }
         #region MESSAGE
         /// <summary>
@@ -114,20 +118,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.TrangChu
         #endregion
 
         #region TRA CỨU HỌC SINH
-        /// <summary>
-        /// Tra cứu học sinh tốt nghiệp
-        /// API: /api/TrangChu/GetTraCuuHocSinhTotNghiep
-        /// </summary>
-        /// <param name="modelSearch"></param>
-        /// <returns></returns>
-        [HttpGet("GetTraCuuHocSinhTotNghiep")]
-        public IActionResult GetTraCuuHocSinhTotNghiep([FromQuery] TraCuuHocHinhTotNghiepSearchModel modelSearch)
-        {
-            var user = _sysUserCL.GetByUsername(modelSearch.NguoiThucHien);
-            var data = _trangChuCL.GetTraCuuHocSinhTotNghiep(user.TruongID,modelSearch);
-
-            return Ok(ResponseHelper.ResultJson(data));
-        }
 
 
         /// <summary>
@@ -232,6 +222,41 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.TrangChu
 
             return Ok(ResponseHelper.ResultJson(data));
         }
+
+        [HttpGet("GetTraCuuHocSinhTotNghiep")]
+        [AllowAnonymous]
+        public IActionResult GetTraCuuHocSinhTotNghiep([FromQuery] TraCuuHocHinhTotNghiepSearchModel modelSearch)
+        {
+            int total;
+            var user = _sysUserCL.GetByUsername(modelSearch.NguoiThucHien);
+            var data = _trangChuCL.GetTraCuuHocSinhDaDuaVaoSo(out total, user.TruongID, modelSearch);
+            List<TraCuuHocSinhDTO> traCuuHocSinhDTOs = _mapper.Map<List<TraCuuHocSinhDTO>>(data);
+            var outputData = new
+            {
+                HocSinhs = traCuuHocSinhDTOs,
+                totalRow = total,
+                searchParam = modelSearch
+            };
+            return ResponseHelper.Ok(outputData);
+        }
+
+
+        ///// <summary>
+        ///// Tra cứu học sinh tốt nghiệp
+        ///// API: /api/TrangChu/GetTraCuuHocSinhTotNghiep
+        ///// </summary>
+        ///// <param name="modelSearch"></param>
+        ///// <returns></returns>
+        //[HttpGet("GetTraCuuHocSinhTotNghiep")]
+        //[AllowAnonymous]
+        //public IActionResult GetTraCuuHocSinhTotNghiep([FromQuery] TraCuuHocHinhTotNghiepSearchModel modelSearch)
+        //{
+        //    var user = _sysUserCL.GetByUsername(modelSearch.NguoiThucHien);
+        //    var data = _trangChuCL.GetTraCuuHocSinhTotNghiep(user.TruongID, modelSearch);
+
+        //    return Ok(ResponseHelper.ResultJson(data));
+        //}
+
 
         #endregion
     }

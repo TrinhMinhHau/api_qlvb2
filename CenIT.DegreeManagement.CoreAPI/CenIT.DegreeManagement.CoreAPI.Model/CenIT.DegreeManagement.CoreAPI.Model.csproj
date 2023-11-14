@@ -16,4 +16,8 @@
     <ProjectReference Include="..\CenIT.DegreeManagement.CoreAPI.Core\CenIT.DegreeManagement.CoreAPI.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\DTO\DuLieuHocSinh\" />
+  </ItemGroup>
+
 </Project>
