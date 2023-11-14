@@ -12,6 +12,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Models.DuLieuHocSinh
         public string TenHinhThucDaoTao { get; set; }
         public SoGocModel SoGoc { get; set; }
         public CauHinhModel CauHinhDonViHienTai { get; set; }
+        public DonYeuCauCapBanSaoModel DonYeuCauCapBanSao { get; set; }
+
 
     }
 }
