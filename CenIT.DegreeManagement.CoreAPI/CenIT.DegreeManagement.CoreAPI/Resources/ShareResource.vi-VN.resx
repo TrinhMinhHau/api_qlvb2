@@ -1,0 +1,440 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ActiveError" xml:space="preserve">
+    <value>Kích hoạt {0} thất bại.</value>
+  </data>
+  <data name="ActiveSuccess" xml:space="preserve">
+    <value>Kích hoạt {0} thành công.</value>
+  </data>
+  <data name="AddError" xml:space="preserve">
+    <value>Thêm {0} - thất bại.</value>
+  </data>
+  <data name="AddSuccess" xml:space="preserve">
+    <value>Thêm {0} - thành công.</value>
+  </data>
+  <data name="AlreadyExist" xml:space="preserve">
+    <value>{0} - đã tồn tại.</value>
+  </data>
+  <data name="ApproveAllError" xml:space="preserve">
+    <value>Duyệt tất cả {0} thất bại</value>
+  </data>
+  <data name="ApproveAllSuccess" xml:space="preserve">
+    <value>Duyệt tất cả {0} thành công</value>
+  </data>
+  <data name="Approved" xml:space="preserve">
+    <value>Không được cập nhật khi {0} đã duyệt. </value>
+  </data>
+  <data name="ApproveError" xml:space="preserve">
+    <value>Duyệt {0} thất bại</value>
+  </data>
+  <data name="ApproveSuccess" xml:space="preserve">
+    <value>Duyệt {0} thành công</value>
+  </data>
+  <data name="CancelError" xml:space="preserve">
+    <value>Hủy {0} thất bại</value>
+  </data>
+  <data name="CancelSuccess" xml:space="preserve">
+    <value>Hủy {0} thành công</value>
+  </data>
+  <data name="CauHinh" xml:space="preserve">
+    <value>Cấu hình</value>
+  </data>
+  <data name="ChangePasswordError" xml:space="preserve">
+    <value>{0} - thay đổi mật khẩu thất bại.</value>
+  </data>
+  <data name="ChangePasswordSuccess" xml:space="preserve">
+    <value>{0} - thay đổi mật khẩu thành công. </value>
+  </data>
+  <data name="Config" xml:space="preserve">
+    <value>Cấu hình</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="ConfirmAllError" xml:space="preserve">
+    <value>Xác nhận tất cả thất bại.</value>
+  </data>
+  <data name="ConfirmAllSuccess" xml:space="preserve">
+    <value>Xác nhận tất cả thành công.</value>
+  </data>
+  <data name="ConfirmError" xml:space="preserve">
+    <value>Xác nhận {0} thất bại.</value>
+  </data>
+  <data name="ConfirmPasswordError" xml:space="preserve">
+    <value>Nhập lại mật khẩu không đúng.</value>
+  </data>
+  <data name="ConfirmSuccess" xml:space="preserve">
+    <value>Xác nhận {0} thành công.</value>
+  </data>
+  <data name="DanToc" xml:space="preserve">
+    <value>Dân tộc</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="DeActiveErrorr" xml:space="preserve">
+    <value>Ngưng hoạt động {0} thất bại.</value>
+  </data>
+  <data name="DeActiveSuccess" xml:space="preserve">
+    <value>Ngưng hoạt động {0} thành công.</value>
+  </data>
+  <data name="DeleteError" xml:space="preserve">
+    <value>Xóa {0} thất bại.</value>
+  </data>
+  <data name="DeleteSuccess" xml:space="preserve">
+    <value>Xóa {0} thành công.</value>
+  </data>
+  <data name="DonYeuCau" xml:space="preserve">
+    <value>Đơn yêu cầu cấp bản sao</value>
+  </data>
+  <data name="DuyetAllError" xml:space="preserve">
+    <value>Duyệt danh sách {0} thất bại</value>
+  </data>
+  <data name="DuyetAllSuccess" xml:space="preserve">
+    <value>Đã duyệt danh sách {0} thành công</value>
+  </data>
+  <data name="EmailInValid" xml:space="preserve">
+    <value>Email không hợp lệ.</value>
+    <comment>Atrribute field</comment>
+  </data>
+  <data name="ExceedsPhoiGocLimit" xml:space="preserve">
+    <value>Số lượng học sinh vượt quá số lượng phôi gốc</value>
+  </data>
+  <data name="ExistInUse" xml:space="preserve">
+    <value>Đã có 1 {0} đang sử dụng.</value>
+  </data>
+  <data name="FileFormatError" xml:space="preserve">
+    <value>Chỉ cho phép tải lên các tệp có định dạng {0}.</value>
+  </data>
+  <data name="Function" xml:space="preserve">
+    <value>Chức năng</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="FunctionAction" xml:space="preserve">
+    <value>Hành động</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="GiveBackError" xml:space="preserve">
+    <value>Trả lại danh sách {0} thất bại.</value>
+  </data>
+  <data name="GiveBackSuccess" xml:space="preserve">
+    <value>Trả lại danh sách {0} thành công,</value>
+  </data>
+  <data name="HeDaoTao" xml:space="preserve">
+    <value>Hệ đào tạo</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="HinhThucDaoTao" xml:space="preserve">
+    <value>Hình thức đào tạo</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="HocSinh" xml:space="preserve">
+    <value>Học sinh</value>
+  </data>
+  <data name="ImportError" xml:space="preserve">
+    <value>Thêm danh sách {0} thất bại.</value>
+  </data>
+  <data name="ImportSuccess" xml:space="preserve">
+    <value>Thêm danh sách {0} thành công.</value>
+  </data>
+  <data name="InvalidField" xml:space="preserve">
+    <value>- không hợp lệ</value>
+  </data>
+  <data name="InvalidToken" xml:space="preserve">
+    <value>Token không hợp lệ</value>
+    <comment>Auth</comment>
+  </data>
+  <data name="KhoaThi" xml:space="preserve">
+    <value>Khóa thi</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="ListEmpty" xml:space="preserve">
+    <value>Không thể cập nhật vì danh sách {0} rõng.</value>
+  </data>
+  <data name="LOAIDONVI_PHONG" xml:space="preserve">
+    <value>Phòng</value>
+  </data>
+  <data name="LOAIDONVI_SO" xml:space="preserve">
+    <value>Sở</value>
+  </data>
+  <data name="LOAIDONVI_TRUONG" xml:space="preserve">
+    <value>Trường</value>
+  </data>
+  <data name="LoaiTin" xml:space="preserve">
+    <value>Loại tin</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="LoginError" xml:space="preserve">
+    <value>Tài khoản hoặc mật khẩu không đúng.</value>
+  </data>
+  <data name="LoginSuccess" xml:space="preserve">
+    <value>Đăng nhập thành công</value>
+  </data>
+  <data name="LogoutError" xml:space="preserve">
+    <value>Đăng xuất thất bại</value>
+  </data>
+  <data name="LogoutSuccess" xml:space="preserve">
+    <value>Đăng xuất thành công</value>
+  </data>
+  <data name="Ma" xml:space="preserve">
+    <value>Mã</value>
+    <comment>Field</comment>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Menu</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="Message" xml:space="preserve">
+    <value>Tin Nhắn</value>
+  </data>
+  <data name="MessageConfig" xml:space="preserve">
+    <value>Cấu hình tin nhắn</value>
+  </data>
+  <data name="MonThi" xml:space="preserve">
+    <value>Môn Thi</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="NamThi" xml:space="preserve">
+    <value>Năm thi</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="Ngay" xml:space="preserve">
+    <value>Ngày</value>
+    <comment>Field</comment>
+  </data>
+  <data name="NgayApDung" xml:space="preserve">
+    <value>Ngày áp dụng</value>
+    <comment>Field</comment>
+  </data>
+  <data name="NoLogin" xml:space="preserve">
+    <value>Bạn chưa đăng nhập vào hệ thông.</value>
+  </data>
+  <data name="NoPermission" xml:space="preserve">
+    <value>Bạn không có quyền truy cập</value>
+    <comment>Auth</comment>
+  </data>
+  <data name="NotExist" xml:space="preserve">
+    <value>{0} không tồn tại.</value>
+  </data>
+  <data name="Notification" xml:space="preserve">
+    <value>Thông Báo</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="OldPasswordError" xml:space="preserve">
+    <value>Mật khẩu hiện tại không đúng.</value>
+  </data>
+  <data name="PermissionGroupError" xml:space="preserve">
+    <value>Phân nhóm quyền thất bại</value>
+  </data>
+  <data name="PermissionGroupSuccess" xml:space="preserve">
+    <value>Phân nhóm quyền thành công</value>
+  </data>
+  <data name="PhoiBanSao" xml:space="preserve">
+    <value>Phôi bản sao</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="PhoiGoc" xml:space="preserve">
+    <value>Phôi gốc</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="PhoneInValid" xml:space="preserve">
+    <value>Số điện thoại không hợp lệ.</value>
+    <comment>Atrribute field</comment>
+  </data>
+  <data name="PutInToError" xml:space="preserve">
+    <value>Đưa vào {0} thất bại.</value>
+  </data>
+  <data name="PutInToSuccess" xml:space="preserve">
+    <value>Đưa vào {0} thành công.</value>
+  </data>
+  <data name="Report" xml:space="preserve">
+    <value>Báo cáo</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="RequestChangePassword" xml:space="preserve">
+    <value>Yêu cầu thay đổi mật khẩu đã được gửi qua email -. Vui lòng mở email của bạn.</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>- không được để trống.</value>
+    <comment>Atrribute field</comment>
+  </data>
+  <data name="ResetPasswordError" xml:space="preserve">
+    <value>{0} - reset mật khẩu thất bại.</value>
+  </data>
+  <data name="ResetPasswordSuccess" xml:space="preserve">
+    <value>{0} - reset mật khẩu thành công.</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Nhóm quyền</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="SettingError" xml:space="preserve">
+    <value>Cấu hình {0} thất bại</value>
+  </data>
+  <data name="SettingSucces" xml:space="preserve">
+    <value>Cấu hình {0} thành công</value>
+  </data>
+  <data name="StrongPassword" xml:space="preserve">
+    <value>Mật khẩu không hợp lệ. Yêu cầu: ít nhất 8 ký tự, có ít nhất một số và một chữ cái viết hoa.</value>
+    <comment>Atrribute field</comment>
+  </data>
+  <data name="StrongYear" xml:space="preserve">
+    <value>- không hợp lệ. Năm hợp lệ từ 1900 đến 2099</value>
+    <comment>Atrribute field</comment>
+  </data>
+  <data name="Ten" xml:space="preserve">
+    <value>Tên</value>
+    <comment>Field</comment>
+  </data>
+  <data name="TienToPhoi" xml:space="preserve">
+    <value>Tiền tố phôi</value>
+  </data>
+  <data name="TieuDe" xml:space="preserve">
+    <value>Tiêu đề</value>
+    <comment>Field</comment>
+  </data>
+  <data name="TinTuc" xml:space="preserve">
+    <value>Tin tức</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="Truong" xml:space="preserve">
+    <value>Trường</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="UpdateError" xml:space="preserve">
+    <value>Cập nhật {0} - thất bại.</value>
+  </data>
+  <data name="UpdateSuccess" xml:space="preserve">
+    <value>Cập nhật {0} - thành công.</value>
+  </data>
+  <data name="UploadError" xml:space="preserve">
+    <value>Không thể tải tệp lên.</value>
+  </data>
+  <data name="Url" xml:space="preserve">
+    <value>Đường dẫn</value>
+    <comment>Field</comment>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Người dùng</value>
+    <comment>Name controller</comment>
+  </data>
+  <data name="UserHasDeActive" xml:space="preserve">
+    <value>{0} - đã ngưng hoạt động.</value>
+  </data>
+  <data name="YearNotMatchDate" xml:space="preserve">
+    <value>{0} không trùng với năm của {1}.</value>
+  </data>
+</root>

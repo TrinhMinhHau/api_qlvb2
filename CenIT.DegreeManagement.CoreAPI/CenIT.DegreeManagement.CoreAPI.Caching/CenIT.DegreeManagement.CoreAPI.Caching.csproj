@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CenIT.DegreeManagement.CoreAPI.Bussiness\CenIT.DegreeManagement.CoreAPI.Bussiness.csproj" />
+    <ProjectReference Include="..\CenIT.DegreeManagement.CoreAPI.Core\CenIT.DegreeManagement.CoreAPI.Core.csproj" />
+    <ProjectReference Include="..\CenIT.DegreeManagement.CoreAPI.Model\CenIT.DegreeManagement.CoreAPI.Model.csproj" />
+  </ItemGroup>
+
+</Project>

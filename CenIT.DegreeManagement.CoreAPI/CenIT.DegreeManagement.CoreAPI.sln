@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33801.468
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CenIT.DegreeManagement.CoreAPI", "CenIT.DegreeManagement.CoreAPI\CenIT.DegreeManagement.CoreAPI.csproj", "{11BAE6EC-5713-4FF1-8F63-50544C79533A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cores", "Cores", "{BE7A8371-5802-45DC-81EE-E67C2198A5C6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CenIT.DegreeManagement.CoreAPI.Bussiness", "CenIT.DegreeManagement.CoreAPI.Bussiness\CenIT.DegreeManagement.CoreAPI.Bussiness.csproj", "{620DE09F-6D27-4BD4-98D2-E98CFD0231C5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CenIT.DegreeManagement.CoreAPI.Model", "CenIT.DegreeManagement.CoreAPI.Model\CenIT.DegreeManagement.CoreAPI.Model.csproj", "{6868B28F-3977-4643-B429-C7088A00193B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CenIT.DegreeManagement.CoreAPI.Core", "CenIT.DegreeManagement.CoreAPI.Core\CenIT.DegreeManagement.CoreAPI.Core.csproj", "{84A6C001-90FE-4667-88BE-2B4DE29546CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CenIT.DegreeManagement.CoreAPI.Caching", "CenIT.DegreeManagement.CoreAPI.Caching\CenIT.DegreeManagement.CoreAPI.Caching.csproj", "{C6F76EFB-0F43-4EA3-9142-9AFD9714531A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{11BAE6EC-5713-4FF1-8F63-50544C79533A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11BAE6EC-5713-4FF1-8F63-50544C79533A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11BAE6EC-5713-4FF1-8F63-50544C79533A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11BAE6EC-5713-4FF1-8F63-50544C79533A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{620DE09F-6D27-4BD4-98D2-E98CFD0231C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{620DE09F-6D27-4BD4-98D2-E98CFD0231C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{620DE09F-6D27-4BD4-98D2-E98CFD0231C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{620DE09F-6D27-4BD4-98D2-E98CFD0231C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6868B28F-3977-4643-B429-C7088A00193B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6868B28F-3977-4643-B429-C7088A00193B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6868B28F-3977-4643-B429-C7088A00193B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6868B28F-3977-4643-B429-C7088A00193B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84A6C001-90FE-4667-88BE-2B4DE29546CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84A6C001-90FE-4667-88BE-2B4DE29546CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84A6C001-90FE-4667-88BE-2B4DE29546CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84A6C001-90FE-4667-88BE-2B4DE29546CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6F76EFB-0F43-4EA3-9142-9AFD9714531A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6F76EFB-0F43-4EA3-9142-9AFD9714531A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6F76EFB-0F43-4EA3-9142-9AFD9714531A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6F76EFB-0F43-4EA3-9142-9AFD9714531A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{620DE09F-6D27-4BD4-98D2-E98CFD0231C5} = {BE7A8371-5802-45DC-81EE-E67C2198A5C6}
+		{6868B28F-3977-4643-B429-C7088A00193B} = {BE7A8371-5802-45DC-81EE-E67C2198A5C6}
+		{84A6C001-90FE-4667-88BE-2B4DE29546CD} = {BE7A8371-5802-45DC-81EE-E67C2198A5C6}
+		{C6F76EFB-0F43-4EA3-9142-9AFD9714531A} = {BE7A8371-5802-45DC-81EE-E67C2198A5C6}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F53FD77F-8FF9-485E-9CCF-DBA894C4F873}
+	EndGlobalSection
+EndGlobal

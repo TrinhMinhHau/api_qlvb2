@@ -1,0 +1,93 @@
+2023-10-22 00:02:04.892 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 09:35:12.500 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 09:43:56.905 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 09:45:45.978 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 09:52:27.583 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 10:04:49.495 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 10:06:24.150 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 10:23:05.824 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 10:26:51.299 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 10:27:39.425 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 10:29:15.855 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 10:34:37.237 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 10:47:54.041 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 10:51:46.916 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 11:04:51.204 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 11:15:26.467 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 11:15:55.461 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 11:23:21.726 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 11:26:32.108 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 11:28:57.938 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 11:32:58.454 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 18:18:57.782 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 18:24:05.095 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 18:37:26.306 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 18:38:55.663 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 18:43:42.351 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 18:47:32.258 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 19:09:25.499 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 19:12:28.737 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 20:21:51.143 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 20:25:39.411 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 20:54:42.491 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 20:59:11.967 [ERR] An unhandled exception has occurred while executing the request. 
+Swashbuckle.AspNetCore.SwaggerGen.SwaggerGeneratorException: Conflicting method/path combination "POST api/XacMinhVanBang/SaveImport" for actions - CenIT.DegreeManagement.CoreAPI.Controllers.XacMinhVanBang.XacMinhVanBangController.SaveImport (CenIT.DegreeManagement.CoreAPI),CenIT.DegreeManagement.CoreAPI.Controllers.XacMinhVanBang.XacMinhVanBangController.SaveImport (CenIT.DegreeManagement.CoreAPI). Actions require a unique method/path combination for Swagger/OpenAPI 3.0. Use ConflictingActionsResolver as a workaround
+   at Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenerator.GenerateOperations(IEnumerable`1 apiDescriptions, SchemaRepository schemaRepository)
+   at Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenerator.GeneratePaths(IEnumerable`1 apiDescriptions, SchemaRepository schemaRepository)
+   at Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenerator.GetSwagger(String documentName, String host, String basePath)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Localization.RequestLocalizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware.Invoke(HttpContext context)
+
+2023-10-22 21:07:23.259 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 21:34:57.678 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 22:05:38.241 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 22:08:05.854 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 22:10:04.818 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 22:15:23.127 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 22:27:05.867 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 22:44:16.277 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 22:49:29.198 [WRN] Failed to determine the https port for redirect. 
+
+2023-10-22 23:00:26.824 [WRN] Failed to determine the https port for redirect. 
+

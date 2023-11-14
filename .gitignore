@@ -1,0 +1,8 @@
+CenIT.DegreeManagement.CoreAPI/CenIT.DegreeManagement.CoreAPI/bin/
+CenIT.DegreeManagement.CoreAPI/.vs/CenIT.DegreeManagement.CoreAPI/FileContentIndex/
+*.BuildWithSkipAnalyzers
+*.dll
+*.pdb
+CenIT.DegreeManagement.CoreAPI/CenIT.DegreeManagement.CoreAPI.Bussiness/obj/Debug/net6.0/CenIT.DegreeManagement.CoreAPI.Bussiness.csproj.CopyComplete
+CenIT.DegreeManagement.CoreAPI/CenIT.DegreeManagement.CoreAPI/CenIT.DegreeManagement.CoreAPI.csproj.user
+CenIT.DegreeManagement.CoreAPI/CenIT.DegreeManagement.CoreAPI.Model/Models/FunctionModel.cs
