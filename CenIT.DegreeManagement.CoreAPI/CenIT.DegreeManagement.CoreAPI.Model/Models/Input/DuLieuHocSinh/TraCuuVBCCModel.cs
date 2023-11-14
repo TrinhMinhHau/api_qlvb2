@@ -18,8 +18,9 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DuLieuHocSinh
     public class TraCuuDonYeuCau : SearchParamModel
     {
         public string IdNamThi { get; set; } = null!;
-        public string HoTen { get; set; } = null!;
+        public string? HoTen { get; set; } = null!;
         public DateTime NgaySinh { get; set; }
         public string? Cccd { get; set; }
+        public string? Ma { get; set; }
     }
 }

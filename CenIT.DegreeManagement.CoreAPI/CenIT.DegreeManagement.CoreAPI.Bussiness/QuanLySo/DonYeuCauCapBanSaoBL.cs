@@ -416,21 +416,23 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.QuanLySo
                           }
                       ).ToList();
 
-    
-            if (!string.IsNullOrEmpty(modelSearch.Cccd))
-            {
-                donYeuCauVM = donYeuCauVM.Where(x => x.HocSinh.CCCD == modelSearch.Cccd).ToList();
-            }
 
-            //donYeuCauVM = donYeuCauVM.Where(x => x.HocSinh.NgaySinh.Date == modelSearch.NgaySinh.ToUniversalTime().Date 
-            //                                && x.HocSinh.HoTen == modelSearch.HoTen 
-            //                                && x.IdNamThi == modelSearch.IdNamThi).ToList();
-            donYeuCauVM = donYeuCauVM.Where(x =>
+            if (!string.IsNullOrEmpty(modelSearch.Cccd) && !string.IsNullOrEmpty(modelSearch.HoTen))
+            {
+                donYeuCauVM = donYeuCauVM.Where(x =>
                                         (x.HocSinh.NgaySinh.Date == modelSearch.NgaySinh.ToUniversalTime().Date ||
                                         x.HocSinh.NgaySinh.Date == modelSearch.NgaySinh.Date) &&
                                         x.HocSinh.HoTen == modelSearch.HoTen &&
                                         x.IdNamThi == modelSearch.IdNamThi)
                                         .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(modelSearch.Ma))
+
+            {
+                donYeuCauVM = donYeuCauVM.Where(x => x.Ma == modelSearch.Ma)
+                                        .ToList();
+            }
 
             total = donYeuCauVM.Count;
 
