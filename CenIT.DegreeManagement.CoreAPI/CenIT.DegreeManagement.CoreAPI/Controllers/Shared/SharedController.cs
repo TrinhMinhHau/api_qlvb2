@@ -9,6 +9,8 @@ using CenIT.DegreeManagement.CoreAPI.Core.Enums;
 using CenIT.DegreeManagement.CoreAPI.Core.Helpers;
 using CenIT.DegreeManagement.CoreAPI.Core.Models;
 using CenIT.DegreeManagement.CoreAPI.Core.Utils;
+using CenIT.DegreeManagement.CoreAPI.Data;
+using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.Sys;
 using CenIT.DegreeManagement.CoreAPI.Models.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Models.Shared;
 using CenIT.DegreeManagement.CoreAPI.Models.Sys.Truong;
@@ -34,6 +36,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.Shared
         private NamThiCL _namThiCL;
         private PhoiGocCL _phoiGocCL;
         private SysFunctionCL _sysFunctionCL;
+        private SysFunctionActionCL _sysFunctionActionCL;
+
 
 
 
@@ -46,6 +50,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.Shared
             _sysConfigCL = new SysConfigCL(cacheService);
             _sysUserCL = new SysUserCL(cacheService);
             _sysFunctionCL = new SysFunctionCL(cacheService);
+            _sysFunctionActionCL = new SysFunctionActionCL(cacheService);
             _danhMucTotNghiepCL = new DanhMucTotNghiepCL(cacheService , configuration);
             _truongCL = new TruongCL(cacheService, configuration);
             _heDaoTaoCL = new HeDaoTaoCL(cacheService, configuration);
@@ -234,12 +239,38 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.Shared
         public IActionResult GetAllFunction()
         {
             var searchModel = new SearchParamModel() { PageSize = -1 };
-            var function = _sysFunctionCL.GetAll(searchModel);
-       
-            return ResponseHelper.Ok(function);
+
+            var functions = _sysFunctionCL.GetAll(searchModel);
+            var auThFunction = new AuthFunction();
+            functions.Insert(0, new FunctionModel
+            {
+                FunctionId = auThFunction.FunctionId,
+                Name = auThFunction.Name,
+                Description = auThFunction.Description
+            });
+            return ResponseHelper.Ok(functions);
+        }
+
+        [HttpGet()]
+        [Route("GetActionsByFunctionId/{id}")]
+        [AllowAnonymous]
+        public IActionResult GetActionsByFunctionId(int id)
+        {
+            var searchModel = new SearchParamModel() { PageSize = -1 };
+            if (id == null) return ResponseHelper.NotFound(_localizer.GetNotExistMessage(NameControllerEnum.FunctionAction.ToStringValue()));
+
+            if (id == 0)
+            {
+                var functionActions = DefaultFunctionActions.GetDefaultActions();
+                return ResponseHelper.Ok(functionActions);
+
+            };
+
+            var data = _sysFunctionActionCL.GetActionsByFunctionId(id, searchModel);
+            if (data != null) return ResponseHelper.Ok(data);
+
+            return ResponseHelper.NotFound(_localizer.GetNotExistMessage(NameControllerEnum.FunctionAction.ToStringValue()));
         }
 
     }
-
-  
 }

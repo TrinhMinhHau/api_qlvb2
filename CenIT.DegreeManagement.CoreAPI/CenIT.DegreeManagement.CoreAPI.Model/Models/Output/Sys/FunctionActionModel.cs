@@ -8,7 +8,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.Sys
 {
     public class FunctionActionModel
     {
-
         public int RowIndex { get; set; }
         public int FunctionActionId { get; set; }
         public int FunctionId { get; set; }

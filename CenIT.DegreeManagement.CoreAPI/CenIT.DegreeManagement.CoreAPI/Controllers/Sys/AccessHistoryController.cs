@@ -33,6 +33,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.Sys
         /// <returns></returns>
         [HttpGet]
         [Route("GetAllByParams")]
+        [AllowAnonymous]
         public IActionResult View([FromQuery] SearchParamFilterDateModel model)
         {
             var data = _cacheLayer.GetAllAccessHistory(model);
