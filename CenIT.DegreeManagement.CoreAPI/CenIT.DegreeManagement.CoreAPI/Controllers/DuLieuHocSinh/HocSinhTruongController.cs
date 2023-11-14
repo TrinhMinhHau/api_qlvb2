@@ -443,15 +443,15 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                     
                     hocSinh.IdKhoaThi = model.IdKhoaThi;
                     var resultEvaluate = GraduationType.AutoEvaluateGraduation(hocSinh.HocLuc, hocSinh.KetQua, hocSinh.XepLoai, hocSinh.HanhKiem,
-                                                       hocSinh.DiemTB, hocSinh.DiemNV, hocSinh.DiemTO, hocSinh.DienXTN, hocSinh.LanDauTotNghiep);
+                                                       hocSinh.DiemTB, hocSinh.DiemMonNV, hocSinh.DiemMonTO, hocSinh.DienXTN, hocSinh.LanDauTotNghiep);
                     hocSinh.HocLuc = resultEvaluate.HocLuc;
                     hocSinh.KetQua = resultEvaluate.KetQua;
                     hocSinh.XepLoai = resultEvaluate.XepLoai;
 
                     hocSinh.KetQuaHocTaps = new List<KetQuaHocTapModel>
                     {
-                        new KetQuaHocTapModel { MaMon = hocSinh.MonNV, Diem = hocSinh.DiemNV ?? 0 },
-                        new KetQuaHocTapModel { MaMon = hocSinh.MonTO, Diem = hocSinh.DiemTO ?? 0 },
+                        new KetQuaHocTapModel { MaMon = hocSinh.MonNV, Diem = hocSinh.DiemMonNV ?? 0 },
+                        new KetQuaHocTapModel { MaMon = hocSinh.MonTO, Diem = hocSinh.DiemMonTO ?? 0 },
                         new KetQuaHocTapModel { MaMon = hocSinh.Mon3, Diem = hocSinh.DiemMon3 ?? 0 },
                         new KetQuaHocTapModel { MaMon = hocSinh.Mon4, Diem = hocSinh.DiemMon4 ?? 0 },
                         new KetQuaHocTapModel { MaMon = hocSinh.Mon5, Diem = hocSinh.DiemMon5 ?? 0 },

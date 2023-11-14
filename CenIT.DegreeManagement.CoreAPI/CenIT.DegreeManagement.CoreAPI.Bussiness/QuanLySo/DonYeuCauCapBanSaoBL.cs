@@ -354,8 +354,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.QuanLySo
             if (modelSearch.NgayDuyet != null)
             {
                 donYeuCauVM = donYeuCauVM.Where(x =>
-                               (x.NgayDuyet?.Date == modelSearch.NgayDuyet?.ToUniversalTime().Date ||
-                               x.NgayDuyet?.Date == modelSearch.NgayDuyet?.Date))
+                               (x.NgayDuyet?.Date == modelSearch.NgayDuyet?.Date))
                                .ToList();
             }
        

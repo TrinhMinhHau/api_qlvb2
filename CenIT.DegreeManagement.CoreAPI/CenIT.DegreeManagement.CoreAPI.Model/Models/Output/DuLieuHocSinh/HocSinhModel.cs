@@ -105,8 +105,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh
         public string? SoHieuVanBang { get; set; } = string.Empty;
         public string? SoVaoSoCapBang { get; set; } = string.Empty;
         public string? LanDauTotNghiep { get; set; } = string.Empty;
-        public double? DiemNV { get; set; } = 0;
-        public double? DiemTO { get; set; } = 0;
+        public double? DiemMonNV  { get; set; } = 0;
+        public double? DiemMonTO        { get; set; } = 0;
         public double? DiemMon3 { get; set; } = 0;
         public double? DiemMon4 { get; set; } = 0;
         public double? DiemMon5 { get; set; } = 0;

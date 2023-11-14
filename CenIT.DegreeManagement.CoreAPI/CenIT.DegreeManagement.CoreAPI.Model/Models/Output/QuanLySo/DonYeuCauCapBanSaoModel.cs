@@ -57,7 +57,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.SoGoc
 
     public class DonYeuCauCapBanSaoParamModel : SearchParamModel
     {
-        public TrangThaiDonYeuCauEnum TrangThai { get; set; } = TrangThaiDonYeuCauEnum.DaDuyet;
+        public TrangThaiDonYeuCauEnum? TrangThai { get; set; } = null;
         public string? Ma { get; set; }
         public string? HoTen { get; set; }
         public string? CCCD { get; set; }
