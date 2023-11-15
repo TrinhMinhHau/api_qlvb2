@@ -23,6 +23,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.Sys
         #region Name function or procedure
         private string _device_token_save = "sys_device_token_save";
         private string _sys_device_token_getbyiddonvi = "fn_sys_device_token_getbyiddonvi";
+        private string _sys_device_token_getbyiddonvis = "fn_sys_device_token_getbyiddonvis";
+
 
         #endregion
 
@@ -30,6 +32,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.Sys
         private string p_device_token = "@p_device_token";
         private string p_user_id = "@p_user_id";
         private string p_id_donvi = "@p_id_donvi";
+        private string p_donvi_ids = "@p_donvi_ids";
         private string p_token = "@p_token";
 
 
@@ -69,6 +72,34 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.Sys
             var list = ModelProvider.CreateListFromTable<DeviceTokenModel>(returnValue);
 
             return list;
+        }
+
+        public List<DeviceTokenGroupTruongModel> GetByIdDonVis(string idDonVis)
+        {
+
+            DbParameter[] parameters = new DbParameter[]
+                 {
+
+                    new NpgsqlParameter(p_donvi_ids, idDonVis),
+                 };
+
+            var returnValue = new ConnectionProcessor(_connectionString).ExcuteStoreProcedureReturnQuery(_sys_device_token_getbyiddonvis, parameters);
+
+            var list = ModelProvider.CreateListFromTable<DeviceTokenManyModel>(returnValue);
+
+            List<DeviceTokenGroupTruongModel> groupedByTruongId = list
+                  .GroupBy(x => x.TruongId)
+                  .Select(group => new DeviceTokenGroupTruongModel
+                  {
+                      TruongId = group.Key,
+                      DeviceTokens = group.Select(deviceToken => new DeviceTokenModel
+                      {
+                          DeviceToken = deviceToken.DeviceToken,
+                      }).ToList()
+                  })
+                  .ToList();
+
+            return groupedByTruongId;
         }
     }
 }

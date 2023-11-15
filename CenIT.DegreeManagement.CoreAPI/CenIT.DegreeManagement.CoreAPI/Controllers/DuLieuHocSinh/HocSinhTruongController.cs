@@ -458,7 +458,10 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                 }
 
                 //Xếp loại tự động
-                dataFromFile = GraduationType.CalculateGraduationFields(dataFromFile);
+                if (isAutoGraded)
+                {
+                    dataFromFile = GraduationType.CalculateGraduationFields(dataFromFile);
+                }
 
                 //Map từ datatable sang List<HocSinhImportViewModel>
                 List<HocSinhImportViewModel> hocSinhImports = ModelProvider.CreateListFromTable<HocSinhImportViewModel>(dataFromFile);

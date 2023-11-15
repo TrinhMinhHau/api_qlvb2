@@ -28,10 +28,30 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh
         public string? GhiChu { get; set; }
     }
 
+    public class DanhMucTotNghiepViaTruongModel : BaseModel
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
+        public string IdDanhMucTotNghiep { get; set; } = null!;
+        public string IdTruong { get; set; } = null!;
+        public bool DaGui { get; set; } = false;
+        public bool DaDuyet { get; set; } = false;
+        public int SoLuongHocSinh { get; set; } = 0;
+    }
+
     public class DanhMucTotNghiepViewModel : DanhMucTotNghiepModel
     {
         public int TongSoTruong { get; set; } = 0;
         public string? NamThi { get; set; } = string.Empty;
         public string? HinhThucDaoTao { get; set; } = string.Empty;
+    }
+
+    public class TruongHocViaDanhMucTotNghiepModel : DanhMucTotNghiepViaTruongModel
+    {
+        public string MaTruong { get; set; } = null!;
+        public string TenTruong { get; set; } = null!;
+        public bool HasPermision { get; set; }
+        public DanhMucTotNghiepViewModel DanhMucTotNghiep { get; set; } = new DanhMucTotNghiepViewModel();
     }
 }

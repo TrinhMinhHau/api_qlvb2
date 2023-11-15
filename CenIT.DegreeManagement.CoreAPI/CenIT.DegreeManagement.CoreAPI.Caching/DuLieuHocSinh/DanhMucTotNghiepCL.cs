@@ -276,5 +276,53 @@ namespace CenIT.DegreeManagement.CoreAPI.Caching.DuLieuHocSinh
             return danhMucTotNghieps;
         }
 
+        public List<DanhMucTotNghiepViewModel> GetAllByTruong(string idTruong)
+        {
+            string rawKey = string.Concat("DanhMucTotNghieps-GetAllByTruong", idTruong);
+
+            List<DanhMucTotNghiepViewModel> danhMucTotNghieps = _cache.GetCacheKey<List<DanhMucTotNghiepViewModel>>(rawKey, _masterCacheKey)!;
+            if (danhMucTotNghieps != null) return danhMucTotNghieps;
+            danhMucTotNghieps = _BL.GetAllByTruong(idTruong);
+            _cache.AddCacheItem(rawKey, danhMucTotNghieps, _masterCacheKey);
+            return danhMucTotNghieps;
+        }
+
+        /// <summary>
+        /// Cho phép trường gửi danh sách
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<int> CreateDanhMucTotNghiepViaTruong(DanhMucTotNghiepViaTruongInputModel model)
+        {
+            var result = await _BL.CreateDanhMucTotNghiepViaTruong(model);
+            if (result > 0)
+            {
+                // Invalidate the cache
+                _cache.InvalidateCache(_masterCacheKey);
+            }
+            return result;
+        }
+
+        public List<TruongHocViaDanhMucTotNghiepModel> GetTruong(string idDonVi, string idDanhMucTotNghiep)
+        {
+            string rawKey = string.Concat("DanhMucTotNghieps-GetTruong", idDonVi, idDanhMucTotNghiep);
+
+            List<TruongHocViaDanhMucTotNghiepModel> truongsWithPermission = _cache.GetCacheKey<List<TruongHocViaDanhMucTotNghiepModel>>(rawKey, _masterCacheKey)!;
+            if (truongsWithPermission != null) return truongsWithPermission;
+            truongsWithPermission = _BL.GetTruong(idDonVi, idDanhMucTotNghiep);
+            _cache.AddCacheItem(rawKey, truongsWithPermission, _masterCacheKey);
+            return truongsWithPermission;
+        }
+
+        public List<TruongHocViaDanhMucTotNghiepModel> GetTruongHasPermision(string idDanhMucTotNghiep)
+        {
+            string rawKey = string.Concat("DanhMucTotNghieps-GetTruongHasPermision", idDanhMucTotNghiep);
+
+            List<TruongHocViaDanhMucTotNghiepModel> truongs = _cache.GetCacheKey<List<TruongHocViaDanhMucTotNghiepModel>>(rawKey, _masterCacheKey)!;
+            if (truongs != null) return truongs;
+            truongs = _BL.GetTruongHasPermision(idDanhMucTotNghiep);
+            _cache.AddCacheItem(rawKey, truongs, _masterCacheKey);
+            return truongs;
+        }
     }
 }

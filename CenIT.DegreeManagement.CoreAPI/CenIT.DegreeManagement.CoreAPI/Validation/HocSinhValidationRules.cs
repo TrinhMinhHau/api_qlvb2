@@ -334,8 +334,15 @@ namespace CenIT.DegreeManagement.CoreAPI.Validation
                 },
                 new ValidationRule
                 {
+                    ColumnName = "DiemTB",
+                    IsRequired = true,
+                    CustomValidator = value => string.IsNullOrEmpty(value) || Double.TryParse(value, out _)
+
+                },
+                new ValidationRule
+                {
                     ColumnName = "HanhKiem",
-                    IsRequired = isAutoGraded,
+                    IsRequired = true,
                     CustomValidator = value => string.IsNullOrEmpty(value) || value.ToLower() == XepLoaiHanhKiem.Excellent.ToStringValue().ToLower()
                                                                            || value.ToLower() == XepLoaiHanhKiem.Good.ToStringValue().ToLower()
                                                                            || value.ToLower() == XepLoaiHanhKiem.Average.ToStringValue().ToLower()

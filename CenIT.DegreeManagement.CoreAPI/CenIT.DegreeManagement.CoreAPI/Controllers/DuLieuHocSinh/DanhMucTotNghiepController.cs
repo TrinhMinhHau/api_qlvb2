@@ -1,15 +1,25 @@
 ﻿using AutoMapper;
+using CenIT.DegreeManagement.CoreAPI.Bussiness.DanhMuc;
+using CenIT.DegreeManagement.CoreAPI.Bussiness.Sys;
 using CenIT.DegreeManagement.CoreAPI.Caching.DanhMuc;
 using CenIT.DegreeManagement.CoreAPI.Caching.DuLieuHocSinh;
+using CenIT.DegreeManagement.CoreAPI.Caching.Sys;
 using CenIT.DegreeManagement.CoreAPI.Core.Caching;
 using CenIT.DegreeManagement.CoreAPI.Core.Enums;
 using CenIT.DegreeManagement.CoreAPI.Core.Helpers;
+using CenIT.DegreeManagement.CoreAPI.Core.Models;
 using CenIT.DegreeManagement.CoreAPI.Core.Utils;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DuLieuHocSinh;
+using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.Sys;
+using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh;
+using CenIT.DegreeManagement.CoreAPI.Models.DuLieuHocSinh;
+using CenIT.DegreeManagement.CoreAPI.Processor;
 using CenIT.DegreeManagement.CoreAPI.Processor.UploadFile;
 using CenIT.DegreeManagement.CoreAPI.Resources;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 {
@@ -20,26 +30,39 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
         private DanhMucTotNghiepCL _cacheLayer;
         private NamThiCL _namThiCL;
         private TruongCL _truongCL;
+        private SysUserCL _sysUserCL;
+        private SysDeviceTokenCL _sysDeviceTokenCL;
+        private SysMessageConfigCL _sysMessageConfigCL;
+        private MessageCL _messageCL;
 
 
+        private readonly BackgroundJobManager _backgroundJobManager;
         private readonly IMapper _mapper;
         private ILogger<DanhMucTotNghiepController> _logger;
         private readonly ShareResource _localizer;
         private readonly IFileService _fileService;
 
+
         private readonly string _nameController = "Danh mục tốt nghiệp";
 
-        public DanhMucTotNghiepController(ICacheService cacheService, IConfiguration configuration, ShareResource shareResource, ILogger<DanhMucTotNghiepController> logger, IFileService fileService, IMapper imapper) : base(cacheService, configuration)
+        public DanhMucTotNghiepController(ICacheService cacheService,IConfiguration configuration,
+            ShareResource shareResource, ILogger<DanhMucTotNghiepController> logger, IFileService fileService, BackgroundJobManager backgroundJobManager, IMapper imapper) : base(cacheService, configuration)
         {
             _cacheLayer = new DanhMucTotNghiepCL(cacheService, configuration);
             _namThiCL = new NamThiCL(cacheService, configuration);
             _truongCL = new TruongCL(cacheService, configuration);
+            _sysUserCL = new SysUserCL(cacheService);
+            _sysMessageConfigCL = new SysMessageConfigCL(cacheService);
+            _sysDeviceTokenCL = new SysDeviceTokenCL(cacheService);
+            _messageCL = new MessageCL(cacheService);
             _mapper = imapper;
             _logger = logger;
             _localizer = shareResource;
             _fileService = fileService;
+            _backgroundJobManager = backgroundJobManager;
         }
 
+        #region DanhMucTotNghiep
 
         /// <summary>
         /// Lấy tất cả danh mục tốt nghiệp
@@ -204,25 +227,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
             return ResponseHelper.Ok(data);
         }
 
-        ///// <summary>
-        ///// Lấy danh mục tốt nghiệp theo idNamThi và idHinhThucDaoTao
-        ///// </summary>
-        ///// <param name="idDanhMucTotNghiep"></param>
-        ///// <returns></returns>
-        //[HttpGet("GetByIdNamThi/{idNamThi}/{maHinhThucDaoTao}")]
-        //public IActionResult GetByIdNamThiAndMaHinhThucDaoTao(string idNamThi, string maHinhThucDaoTao)
-        //{
-        //    var danhMucTotNghieps = _cacheLayer.GetByIdNamThiAndMaHinhThucDaoTao(idNamThi, maHinhThucDaoTao);
-        //    var tongSoTruong = _truongCL.GetAll().Count();
-
-        //    danhMucTotNghieps.ForEach(danhMucTotNghiep =>
-        //    {
-        //        danhMucTotNghiep.TongSoTruong = tongSoTruong;
-
-        //    });
-        //    return ResponseHelper.Ok(danhMucTotNghieps);
-        //}
-
         /// <summary>
         /// Khóa danh mục tốt nghiệp
         /// </summary>
@@ -254,6 +258,130 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 
             return ResponseHelper.Success(string.Format("Mở khóa [{0}] thành công", _nameController));
         }
+        #endregion
+
+        #region DanhMucTotNghiep via truong
+        [HttpPost("CreateDanhMucTotNghiepViaTruong")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CreateDanhMucTotNghiepViaTruong([FromBody] DanhMucTotNghiepViaTruongInputModel model)
+        {
+            var response = await _cacheLayer.CreateDanhMucTotNghiepViaTruong(model);
+            if (response == (int)EnumDanhMucTotNghiep.Success)
+                return ResponseHelper.Success("Phân quyền trường thành công");
+            if (response == (int)EnumDanhMucTotNghiep.NotFound)
+                return ResponseHelper.Success("Danh mục tốt nghiệp không tồn tại");
+            if (response == (int)EnumDanhMucTotNghiep.NotFoundTruong)
+                return ResponseHelper.Success("Trường không tồn tại");
+            else
+                return ResponseHelper.BadRequest("Phân quyền trường thất bại");
+        }
+
+        [HttpGet("GetAllTruong")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllTruong(string idDanhMucTotNghiep, string nguoiThucHien)
+        {
+            var user = _sysUserCL.GetByUsername(nguoiThucHien);
+            if (!string.IsNullOrEmpty(user.TruongID) && CheckString.CheckBsonId(user.TruongID))
+            {
+               var response =  _cacheLayer.GetTruong(user.TruongID, idDanhMucTotNghiep);
+                var dataMapper = _mapper.Map<List<TruongHocViaDanhMucTotNghiepDTO>>(response);
+
+                return ResponseHelper.Ok(dataMapper);
+
+            }
+
+            return ResponseHelper.BadRequest("Người thực hiện không thuộc đơn vị nào");
+        }
+
+        [HttpGet("GetTruongHasPermision")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTruongHasPermision(string idDanhMucTotNghiep)
+        {
+         
+            var response = _cacheLayer.GetTruongHasPermision(idDanhMucTotNghiep);
+            var dataMapper = _mapper.Map<List<TruongHocViaDMTNHasPermisionDTO>>(response);
+
+            return ResponseHelper.Ok(dataMapper);
+        }
+
+        [HttpPost("GuiThongBaoTungTruong")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GuiThongBaoTungTruong([FromBody]string idTruong)
+        {
+            var deviceTokens = _sysDeviceTokenCL.GetByIdDonVi(idTruong);
+            string actionName = HttpContext.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>()?.ActionName!;
+            string controllerName = HttpContext.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>()?.ControllerName!;
+            string action = EString.GenerateActionString(controllerName, actionName);
+            var messageConfig = _sysMessageConfigCL.GetByActionName(action);
+            if (messageConfig != null)
+            {
+                MessageInputModel message = new MessageInputModel()
+                {
+                    IdMessage = Guid.NewGuid().ToString(),
+                    Action = action,
+                    MessageType = MessageTypeEnum.TruongGuiPhong.ToStringValue(),
+                    SendingMethod = SendingMethodEnum.Notification.ToStringValue(),
+                    Title = messageConfig.Title,
+                    Content = messageConfig.Body,
+                    Color = messageConfig.Color,
+                    Recipient = null,
+                    Url = messageConfig.URL,
+                    IDDonVi = idTruong,
+                };
+
+                var sendMessage = _messageCL.Save(message);
+
+                BackgroundJob.Enqueue(() => _backgroundJobManager.SendNotificationInBackground(message.Title, message.Content, deviceTokens));
+                return ResponseHelper.Success("Gửi thông báo thành công");
+            }
+
+            return ResponseHelper.BadRequest("Gửi thông báo thất bạo");
+
+        }
+
+
+        [HttpPost("GuiThongBaoNhieuTruong")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GuiThongBaoNhieuTruong([FromBody]string idTruongs)
+        {
+            var deviceTokens = _sysDeviceTokenCL.GetByIdDonVis(idTruongs);
+            string actionName = HttpContext.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>()?.ActionName!;
+            string controllerName = HttpContext.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>()?.ControllerName!;
+            string action = EString.GenerateActionString(controllerName, actionName);
+            var messageConfig = _sysMessageConfigCL.GetByActionName(action);
+            if (messageConfig != null)
+            {
+                deviceTokens.ForEach(x=>
+                {
+                    MessageInputModel message = new MessageInputModel()
+                    {
+                        IdMessage = Guid.NewGuid().ToString(),
+                        Action = action,
+                        MessageType = MessageTypeEnum.TruongGuiPhong.ToStringValue(),
+                        SendingMethod = SendingMethodEnum.Notification.ToStringValue(),
+                        Title = messageConfig.Title,
+                        Content = messageConfig.Body,
+                        Color = messageConfig.Color,
+                        Recipient = null,
+                        Url = messageConfig.URL,
+                        IDDonVi = x.TruongId,
+                    };
+
+                    var sendMessage = _messageCL.Save(message);
+                    BackgroundJob.Enqueue(() => _backgroundJobManager.SendNotificationInBackground(message.Title, message.Content, x.DeviceTokens));
+                });
+
+
+
+                return ResponseHelper.Success("Gửi thông báo thành công");
+            }
+
+            return ResponseHelper.BadRequest("Gửi thông báo thất bạo");
+
+        }
+
+
+        #endregion
 
     }
 }

@@ -1,11 +1,8 @@
 ﻿using CenIT.DegreeManagement.CoreAPI.Core.Enums;
 using CenIT.DegreeManagement.CoreAPI.Core.Provider;
-using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DanhMuc;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DanhMuc;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh;
-using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.SoGoc;
-using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.Sys;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -35,6 +32,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
             //Dùng lệnh GetDatabase để kết nối Cơ sở dữ liệu
             _mongoDatabase = client.GetDatabase(dbName);
         }
+
+        #region Danh Muc Tot Nghiep Main
 
         /// <summary>
         /// Lấy danh sách danh mục tốt nghiệp theo search param
@@ -600,6 +599,50 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
             }
         }
 
+        public List<DanhMucTotNghiepViewModel> GetAllByTruong(string idTruong)
+        {
+            var filterBuilder = Builders<DanhMucTotNghiepViewModel>.Filter;
+            var danhMucTotNghiepCollection = _mongoDatabase.GetCollection<DanhMucTotNghiepViewModel>(collectionDanhMucTotNghiep);
+            var hinhThucDaoTaoCollection = _mongoDatabase.GetCollection<HinhThucDaoTaoModel>(collectionHinhThucDaoTaoName);
+            var namThiTaoCollection = _mongoDatabase.GetCollection<NamThiModel>(collectionNamThiName);
+            var dmtnViaTruongCollection = _mongoDatabase.GetCollection<TruongHocViaDanhMucTotNghiepModel>(_collectionDMTNViaTruong);
+
+            var dmtnViaTruongs = dmtnViaTruongCollection.Find(x => x.IdTruong == idTruong).ToList()
+                                       .Join(
+                                            danhMucTotNghiepCollection.AsQueryable(),
+                                            dmtnVia => dmtnVia.IdDanhMucTotNghiep,
+                                            dmtn => dmtn.Id,
+                                            (dmtnVia, dmtn) =>
+                                            {
+                                                dmtnVia.DanhMucTotNghiep = dmtn;
+                                                return dmtn;
+                                            }
+                                        )
+                                         .Join(
+                                                hinhThucDaoTaoCollection.AsQueryable(),
+                                                dmtn => dmtn.IdHinhThucDaoTao,
+                                                htdt => htdt.Id,
+                                                (dmtn, htdt) =>
+                                                {
+                                                    dmtn.HinhThucDaoTao = htdt.Ten;
+                                                    return dmtn;
+                                                }
+                                            )
+                                             .Join(
+                                                namThiTaoCollection.AsQueryable(),
+                                                dmtn => dmtn.IdNamThi,
+                                                namThi => namThi.Id,
+                                                (dmtn, namThi) =>
+                                                {
+                                                    dmtn.NamThi = namThi.Ten;
+                                                    return dmtn;
+                                                }
+                                            ).ToList(); 
+
+            return dmtnViaTruongs;
+        }
+
+
         /// <summary>
         /// Cập nhật số lượng trường đã duyệt
         /// </summary>
@@ -682,6 +725,132 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
             return danhMucTotNghiemVMs;
         }
 
+        #endregion
+
+        #region Danh Muc Tot Nghiep Via Truong
+        /// <summary>
+        /// Cho phép trường gửi danh sách
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<int> CreateDanhMucTotNghiepViaTruong(DanhMucTotNghiepViaTruongInputModel model)
+        {
+            try
+            {
+                // các Collection
+                var truongCollection = _mongoDatabase.GetCollection<TruongModel>(_collectionNameTruong);
+                var dmtnViaTruongCollection = _mongoDatabase.GetCollection<DanhMucTotNghiepViaTruongModel>(_collectionDMTNViaTruong);
+
+                // Kiểm tra danh mục tốt nghiệp
+                var dmtn = GetByID(model.IdDanhMucTotNghiep);
+                if (dmtn == null)
+                {
+                    return (int)EnumDanhMucTotNghiep.NotFound;
+                }
+
+                string[] idTruongsArray = model.IdTruongs.Split(',');
+
+                List<FilterDefinition<TruongModel>> filters = new List<FilterDefinition<TruongModel>>();
+                foreach (var idTruong in idTruongsArray)
+                {
+                    filters.Add(Builders<TruongModel>.Filter.Eq(t => t.Id, idTruong));
+                }
+                // Kết hợp các FilterDefinition bằng phép OR
+                FilterDefinition<TruongModel> combinedFilter = Builders<TruongModel>.Filter.Or(filters);
+
+                // Kiểm tra sự tồn tại của tất cả idTruongs bằng một truy vấn
+                var truongsExist = truongCollection.Find(combinedFilter).ToList();
+                if (truongsExist.Count != idTruongsArray.Length)
+                {
+                    return (int)EnumDanhMucTotNghiep.NotFoundTruong;
+                }
+
+                List<DanhMucTotNghiepViaTruongModel> danhSachDanhMuc = new List<DanhMucTotNghiepViaTruongModel>();
+                foreach (var idTruong in idTruongsArray)
+                {
+                    danhSachDanhMuc.Add(new DanhMucTotNghiepViaTruongModel
+                    {
+                        IdDanhMucTotNghiep = model.IdDanhMucTotNghiep,
+                        IdTruong = idTruong,
+                        NgayTao = DateTime.Now,
+                        NguoiTao = model.NguoiThucHien
+                    });
+                }
+
+                await dmtnViaTruongCollection.InsertManyAsync(danhSachDanhMuc);
+
+                return (int)EnumDanhMucTotNghiep.Success;
+
+            }
+            catch
+            {
+                return (int)EnumDanhMucTotNghiep.Fail;
+            }
+        }
+
+        public List<TruongHocViaDanhMucTotNghiepModel> GetTruong(string idDonVi, string idDanhMucTotNghiep)
+        {
+            var truongCollection = _mongoDatabase.GetCollection<TruongModel>(_collectionNameTruong);
+            var dmtnViaTruongCollection = _mongoDatabase.GetCollection<DanhMucTotNghiepViaTruongModel>(_collectionDMTNViaTruong);
+            string idDonViCha = idDonVi;
+            var donVi = truongCollection.Find(x => x.Id == idDonVi).FirstOrDefault();
+            if(donVi.LaPhong == false && string.IsNullOrEmpty(donVi.IdCha))
+            {
+                idDonViCha = donVi.IdCha;
+            }
+
+            var truongs = truongCollection.Find(x=>x.IdCha == idDonViCha).ToList();
+            var dmtnViaTruong = dmtnViaTruongCollection.Find(x => x.IdDanhMucTotNghiep == idDanhMucTotNghiep).ToList()
+                                                        .Select(x=>x.IdTruong).ToList();
+
+            var truongsWithPermission = truongs.Select(truong =>
+            {
+                bool hasPermission = dmtnViaTruong.Contains(truong.Id);
+                return new TruongHocViaDanhMucTotNghiepModel
+                {
+                    IdTruong = truong.Id,
+                    TenTruong = truong.Ten,
+                    MaTruong = truong.Ma,
+                    HasPermision = hasPermission
+                };
+            }).ToList();
+
+            return truongsWithPermission;
+
+        }
+
+        public List<TruongHocViaDanhMucTotNghiepModel> GetTruongHasPermision(string idDanhMucTotNghiep)
+        {
+            var truongCollection = _mongoDatabase.GetCollection<TruongModel>(_collectionNameTruong);
+            var dmtnViaTruongCollection = _mongoDatabase.GetCollection<TruongHocViaDanhMucTotNghiepModel>(_collectionDMTNViaTruong);
+
+            var dmtnViaTruong = dmtnViaTruongCollection
+                .Find(x => x.IdDanhMucTotNghiep == idDanhMucTotNghiep)
+                .ToList();
+
+           var truongs = truongCollection.AsQueryable();
+
+            var result = dmtnViaTruong
+                    .Join(
+                        truongs,
+                        dmtn => dmtn.IdTruong,
+                        truong => truong.Id,
+                        (dmtn, truong) =>
+                        {
+                            dmtn.IdTruong = truong.Id;
+                            dmtn.TenTruong = truong.Ten;
+                            dmtn.MaTruong = truong.Ma;
+                            return dmtn;
+                        }
+                    )
+                    .ToList();
+
+
+
+            return result;
+        }
+
+        #endregion
 
         #region private
 

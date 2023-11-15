@@ -10,4 +10,16 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Output.Sys
     {
         public string DeviceToken { get; set; }
     }
+
+    public class DeviceTokenManyModel
+    {
+        public string DeviceToken { get; set; }
+        public string TruongId { get; set; }
+    }
+
+    public class DeviceTokenGroupTruongModel
+    {
+        public string TruongId { get; set; }
+        public List<DeviceTokenModel> DeviceTokens { get; set; }
+    }
 }

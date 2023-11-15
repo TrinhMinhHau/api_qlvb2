@@ -11,6 +11,7 @@ using CenIT.DegreeManagement.CoreAPI.Core.Helpers;
 using CenIT.DegreeManagement.CoreAPI.Core.Models;
 using CenIT.DegreeManagement.CoreAPI.Core.Utils;
 using CenIT.DegreeManagement.CoreAPI.Data;
+using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.Sys;
 using CenIT.DegreeManagement.CoreAPI.Models.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Models.Shared;
@@ -158,13 +159,26 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.Shared
         public IActionResult GetAllDanhMucTotNghiep(string username)
         {
             var user = _sysUserCL.GetByUsername(username);
-            var donVi = _truongCL.GetById(user.TruongID);
-            string maHeDaotao = "";
-            if(donVi != null) { maHeDaotao = donVi.MaHeDaoTao; }
+            if (!string.IsNullOrEmpty(user.TruongID) && CheckString.CheckBsonId(user.TruongID))
+            {
+                var donVi = _truongCL.GetById(user.TruongID);
+                if(donVi.LaPhong == true && string.IsNullOrEmpty(donVi.IdCha))
+                {
+                    string maHeDaotao = "";
+                    if (donVi != null) { maHeDaotao = donVi.MaHeDaoTao; }
 
-            var listDMTN = _danhMucTotNghiepCL.GetAllByHeDaoTao(maHeDaotao);
+                    var listDMTN = _danhMucTotNghiepCL.GetAllByHeDaoTao(maHeDaotao);
 
-            return ResponseHelper.Ok(listDMTN);
+                    return ResponseHelper.Ok(listDMTN);
+                }
+                var listDMTNbyTruong = _danhMucTotNghiepCL.GetAllByTruong(donVi.Id);
+                //var dmtns = _mapper.Map<List<DanhMucTotNghiepViewModel>>(listDMTNbyTruong);
+                return ResponseHelper.Ok(listDMTNbyTruong);
+
+
+            }
+            return ResponseHelper.BadRequest("Người thực hiện không thuộc đơn vị nào");
+
         }
 
         [HttpGet("GetByCccd")]

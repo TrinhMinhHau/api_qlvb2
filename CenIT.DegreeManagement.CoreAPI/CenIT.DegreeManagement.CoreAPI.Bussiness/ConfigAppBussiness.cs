@@ -33,5 +33,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
         public string _collectionLichSuXacMinhVanBangName = "LichSuXacMinhVanBang";
         public string _collectionPhuLucSoGocName = "PhuLucSoGoc";
         public string _collectionHuyBoName = "LichSuHuyBo";
+        public string _collectionDMTNViaTruong = "DanhMucTotNghiepViaTruong";
     }
 }

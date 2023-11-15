@@ -29,6 +29,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Enums
         NotExistHTDT = -8,
         [Description("Năm thi không khớp với ngày cấp bằng")]
         YearNotMatchDate = -9,
+        [Description("Trường không tồn tại")]
+        NotFoundTruong = -10,
     }
 
     public enum DanhMucTotNghiepInfoEnum

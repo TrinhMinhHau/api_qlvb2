@@ -174,6 +174,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Helpers
                         resultRow["Message"] = $"Dòng {rowIndex + 2}: Trường {rule.ColumnName} không được để trống.";
                         resultRow["ErrorCode"] = -1;
                         hasError = true;
+                        errorCount++;
                         break;
                         //validationResult = new ValidationResult(-1, $"Dòng {rowIndex + 2}: Trường {rule.ColumnName} không được để trống.");
                     }

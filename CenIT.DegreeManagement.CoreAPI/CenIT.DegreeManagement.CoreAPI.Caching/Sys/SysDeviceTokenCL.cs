@@ -43,6 +43,23 @@ namespace CenIT.DegreeManagement.CoreAPI.Caching.Sys
             return configs;
         }
 
+        public List<DeviceTokenGroupTruongModel> GetByIdDonVis(string idDonVis)
+        {
+            var hashKey = EHashMd5.FromObject(idDonVis);
+            var rawKey = string.Concat("GetByIdDonVis-", hashKey);
+
+            //Get item from cache
+            List<DeviceTokenGroupTruongModel> configs = _cache.GetCacheKey<List<DeviceTokenGroupTruongModel>>(rawKey, _masterCacheKey)!;
+            if (configs == null)
+            {
+                configs = _BL.GetByIdDonVis(idDonVis);
+                _cache.AddCacheItem(rawKey, configs, _masterCacheKey);
+            };
+
+            return configs;
+        }
+
+
         public int Save(DeviceTokenInputModel model)
         {
             var result = _BL.Save(model);
