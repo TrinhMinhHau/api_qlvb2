@@ -13,7 +13,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
         public string _order_dir = "@_order_dir";
         public string _page_index = "@_page_index";
         public string _page_size = "@_page_size";
-
         public string _collectionNameNamThi = "NamThi";
         public string _collectionNameDanhMucTotNghiep = "DanhMucTotNghiep";
         public string _collectionNameSoGoc = "SoGoc";

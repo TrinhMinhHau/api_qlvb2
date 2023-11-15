@@ -29,6 +29,8 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Newtonsoft.Json;
 using CenIT.DegreeManagement.CoreAPI.Core.Enums.CauHinh;
 using CenIT.DegreeManagement.CoreAPI.Processor.ExcelProcess;
+using ClosedXML.Excel;
+using CenIT.DegreeManagement.CoreAPI.Processor.UploadFile;
 
 namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 {
@@ -48,14 +50,17 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
         private ILogger<HocSinhPhongController> _logger;
         private readonly ShareResource _localizer;
         private readonly IMapper _mapper;
+        private readonly AppPaths _appPaths;
+        private readonly string _prefixNameFile = "error_import.xlsx";
         private readonly string _nameController = "HocSinh";
         private readonly string _nameDMTN = "DanhMucTotNghiep";
         private readonly string _nameTruong = "Truong";
         private readonly string _nameHTDT = "HinhThucDaoTao";
         private SysDeviceTokenCL _sysDeviceTokenCL;
         private MessageCL _messageCL;
+        private readonly IFileService _fileService;
 
-        public HocSinhPhongController(ICacheService cacheService, IConfiguration configuration, BackgroundJobManager backgroundJobManager, FirebaseNotificationUtils firebaseNotificationUtils, ShareResource shareResource, ILogger<HocSinhPhongController> logger, IMapper mapper) : base(cacheService, configuration)
+        public HocSinhPhongController(ICacheService cacheService, IConfiguration configuration, IFileService fileService, AppPaths appPaths, BackgroundJobManager backgroundJobManager, FirebaseNotificationUtils firebaseNotificationUtils, ShareResource shareResource, ILogger<HocSinhPhongController> logger, IMapper mapper) : base(cacheService, configuration)
         {
             _cacheLayer = new HocSinhCL(cacheService, configuration);
             _phoiGocCL = new PhoiGocCL(cacheService, configuration);
@@ -71,6 +76,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
             _mapper = mapper;
             _messageCL = new MessageCL(cacheService);
             _sysConfigCL = new SysConfigCL(cacheService);
+            _appPaths = appPaths;
+            _fileService = fileService;
         }
 
         /// <summary>
@@ -502,6 +509,12 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
         {
             try
             {
+                var deleteFile = _fileService.DeleteFile(model.NguoiThucHien + "_" + _prefixNameFile, _appPaths.UploadFileExcelError_HocSinhTruong);
+                if (deleteFile == 0)
+                {
+                    return ResponseHelper.BadRequest("Error Delete file");
+
+                }
 
                 //Kiểm tra định dạng file excel
                 string[] allowedExtensions = { ".xlsx", ".csv", ".xls" };
@@ -510,7 +523,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                 {
                     return ResponseHelper.BadRequest(checkFile.Item2);
                 }
-
                 //Đọc file excel
                 DataTable dataFromFile = ExcelProcess.ReadExcelData(model.FileExcel);
 
@@ -531,8 +543,12 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 
                 if (checkValue.Item2 > 0)
                 {
-                    var result = checkValue.Item1;
-                    return ResponseHelper.BadRequest(_localizer.GetImportErrorMessage(NameControllerEnum.HocSinh.ToStringValue()));
+                    string excelFilePath = SaveDataTableErrorToExcel(checkValue.Item1, model.NguoiThucHien);
+                    var outputData = new
+                    {
+                        Path = excelFilePath,
+                    };
+                    return ResponseHelper.BadRequestHaveData("Thêm danh sách học sinh thất bại. Vui lòng tải tệp lỗi để kiểm tra và thử lại!", outputData);
                 }
 
                 //Map từ datatable sang List<HocSinhImportViewModel>
@@ -587,6 +603,37 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                 _logger.LogError(ex.Message, ex);
                 return ResponseHelper.Error500(ex.Message);
             }
+        }
+
+        private string SaveDataTableErrorToExcel(DataTable dataTable, string nguoiThucHien)
+        {
+            // Generate a unique file name, you can customize the logic as needed
+            string fileName = $"{nguoiThucHien + "_" + _prefixNameFile}";
+            string uploadDirectory = _appPaths.UploadFileExcelError_HocSinhTruong;
+
+            string filePath = Path.Combine(uploadDirectory, fileName); // Specify the directory to save the file
+
+            // Ensure the directory exists
+            Directory.CreateDirectory(uploadDirectory);
+
+            // Remove the "ErrorCode" column if it exists
+            if (dataTable.Columns.Contains("ErrorCode"))
+            {
+                dataTable.Columns.Remove("ErrorCode");
+            }
+            // Save DataTable to Excel using ClosedXML
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("ImportError");
+
+                // Load the data from DataTable to worksheet
+                worksheet.Cell(1, 1).InsertTable(dataTable);
+
+                // Save the workbook to a file
+                workbook.SaveAs(filePath);
+            }
+
+            return _appPaths.GetFileExcelError_HocSinhTruong + "/" + fileName;
         }
 
 

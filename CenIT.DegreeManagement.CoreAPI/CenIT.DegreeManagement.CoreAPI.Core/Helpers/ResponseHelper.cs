@@ -207,6 +207,26 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Helpers
             };
         }
 
+        public static IActionResult BadRequestHaveData(string message, object data, string? name = null)
+        {
+
+            if (message != null && name != null && message.Contains("-"))
+            {
+                message = message.Replace("-", "[" + name + "]");
+            }
+
+            var result = new
+            {
+                isSuccess = false,
+                data = data,
+                message = message
+            };
+            return new JsonResult(result)
+            {
+                StatusCode = 400
+            };
+        }
+
         public static IActionResult Errors(List<Dictionary<string, string>> Errors)
         {
 

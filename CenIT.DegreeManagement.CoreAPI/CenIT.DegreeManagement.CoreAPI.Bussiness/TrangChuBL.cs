@@ -172,7 +172,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
 
             var filters = new List<FilterDefinition<HocSinhVM>>
             {
-                 //filterBuilder.Eq("TrangThai", modelSearch.TrangThai),
+                 filterBuilder.In("TrangThai", trangThais),
                 filterBuilder.Eq("Xoa", false),
                 !string.IsNullOrEmpty(modelSearch.HoTen)
                     ? filterBuilder.Regex("HoTen", new BsonRegularExpression(modelSearch.HoTen, "i"))
