@@ -22,6 +22,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Globalization;
+using CenIT.DegreeManagement.CoreAPI.Processor.ExcelProcess;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,8 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ICacheService, CacheLayer>();
 builder.Services.AddSingleton<ShareResource>();
 builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddTransient<IExcelProcess, ExcelProces>();
+
 builder.Services.AddTransient<ISendMailService, SendMailService>();
 //Firebase
 var googleCredentialPath = builder.Environment.ContentRootPath;

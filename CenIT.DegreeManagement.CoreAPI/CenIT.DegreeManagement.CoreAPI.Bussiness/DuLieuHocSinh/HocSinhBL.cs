@@ -44,6 +44,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
 
 
 
+
         /// <summary>
         /// Thêm danh sách học sinh
         /// </summary>
@@ -72,24 +73,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
                     model.STT = ++maxSTT;
                 }
 
-                //// Kiểm tra các cccd của dữ liệu trả về có bị trùng lặp với cccd trong db
-                //List<HocSinhModel> hocSinhDbList = collectionHoSinh.Find(hs => true && hs.Xoa == false).ToList();
-
-
-                //HashSet<string> cccdHashSet = new HashSet<string>(hocSinhDbList.Select(hs => hs.CCCD));
-
-                //var duplicates = models.Where(hs => cccdHashSet.Contains(hs.CCCD)).ToList();
-
-                //if (duplicates.Count > 0)
-                //{
-                //    return new ImportResultModel { ErrorCode = (int)HocSinhEnum.ExistCccd, ErrorMessage = duplicates.First().CCCD };
-                //}
-
-                //else
-                //{
-                    collectionHoSinh.InsertMany(models);
-                    return new ImportResultModel { ErrorCode = (int)HocSinhEnum.Success };
-                //}
+                collectionHoSinh.InsertMany(models);
+                return new ImportResultModel { ErrorCode = (int)HocSinhEnum.Success };
             }
             catch
             {
@@ -322,6 +307,24 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
                                 .Find(combinedFilter)
                                 .Count();
             return (int)hocSinhs;
+        }
+
+        public string[] GetAllArrCCCD()
+        {
+            var filterBuilder = Builders<HocSinhModel>.Filter;
+
+            var filters = new List<FilterDefinition<HocSinhModel>>
+            {
+                filterBuilder.Eq("Xoa", false),
+            };
+
+            filters.RemoveAll(filter => filter == null);
+
+            var combinedFilter = filterBuilder.And(filters);
+            var arrCCCD = _mongoDatabase.GetCollection<HocSinhModel>(_collectionHocSinhName)
+                                .Find(combinedFilter)
+                                .ToList().Select(x => x.CCCD).OrderByDescending(x => x).ToArray(); ;
+            return arrCCCD;
         }
 
         #endregion

@@ -18,6 +18,7 @@ using CenIT.DegreeManagement.CoreAPI.Processor.UploadFile;
 using CenIT.DegreeManagement.CoreAPI.Resources;
 using CenIT.DegreeManagement.CoreAPI.Validation;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ using Newtonsoft.Json;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using NPOI.XWPF.UserModel;
 using OfficeOpenXml;
 using SharpCompress.Common;
 using System.Data;
@@ -52,13 +54,17 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
         private readonly BackgroundJobManager _backgroundJobManager;
         private ILogger<HocSinhTruongController> _logger;
         private readonly IFileService _fileService;
+        private readonly IExcelProcess _excelProcess;
+
         private readonly ShareResource _localizer;
         private readonly IMapper _mapper;
         private readonly AppPaths _appPaths;
+
         private readonly string _prefixNameFile = "error_import.xlsx";
 
 
-        public HocSinhTruongController(ICacheService cacheService, IConfiguration configuration, AppPaths appPaths, IFileService fileService, BackgroundJobManager backgroundJobManager, FirebaseNotificationUtils firebaseNotificationUtils, ShareResource shareResource, ILogger<HocSinhTruongController> logger, IMapper mapper) : base(cacheService, configuration)
+        public HocSinhTruongController(ICacheService cacheService, IConfiguration configuration, AppPaths appPaths, IExcelProcess excelProcess,
+            IFileService fileService, BackgroundJobManager backgroundJobManager, FirebaseNotificationUtils firebaseNotificationUtils, ShareResource shareResource, ILogger<HocSinhTruongController> logger, IMapper mapper) : base(cacheService, configuration)
         {
             _cacheLayer = new HocSinhCL(cacheService, configuration);
             _danTocCL = new DanTocCL(cacheService, configuration);
@@ -76,6 +82,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
             _firebaseNotificationUtils = firebaseNotificationUtils;
             _fileService = fileService;
             _appPaths = appPaths;
+            _excelProcess = excelProcess;
         }
 
         #region Function Main
@@ -95,8 +102,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                 return ResponseHelper.BadRequest(_localizer.GetAlreadyExistMessage(NameControllerEnum.HocSinh.ToStringValue(), HocSinhInFoEnum.CCCD.ToStringValue()), model.CCCD);
             if (response == (int)HocSinhEnum.NotExistDanhMucTotNghiep)
                 return ResponseHelper.NotFound(_localizer.GetNotExistMessage(NameControllerEnum.DanhMucTotNghiep.ToStringValue()));
-            //if (response == (int)HocSinhEnum.Approved)
-            //    return ResponseHelper.BadRequest(_localizer.GetApprovedMessage(NameControllerEnum.HocSinh.ToStringValue()));
             if (response == (int)HocSinhEnum.NotExistTruong)
                 return ResponseHelper.NotFound(_localizer.GetNotExistMessage(NameControllerEnum.Truong.ToStringValue()));
             if (response == (int)HocSinhEnum.NotExistDanToc)
@@ -406,11 +411,12 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
             try
             {
 
-                var deleteFile = _fileService.DeleteFile(model.NguoiThucHien + "_" + _prefixNameFile, _appPaths.UploadFileExcelError_HocSinhTruong);
-                if (deleteFile == 0)
+                var deleteFileError = _fileService.DeleteFile(model.NguoiThucHien + "_" + _prefixNameFile, _appPaths.UploadFileExcelError_HocSinhTruong);
+                var deleteFileSuccess = _fileService.DeleteFile(model.NguoiThucHien + "_" + _prefixNameFile, _appPaths.UploadFileExcelSuccess_HocSinhTruong);
+
+                if (deleteFileError == 0 && deleteFileSuccess == 0)
                 {
                     return ResponseHelper.BadRequest("Error Delete file");
-
                 }
 
                 //Kiểm tra định dạng file excel
@@ -426,8 +432,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 
                 var monThis = _monThiCL.GetAllMaMonThi();
                 var danTocs = _danTocCL.GetAllTenDanToc();
-                var hocSinhAlls = _cacheLayer.GetAllHocSinhDaCoSoHieu();
-                string[] arrayCccd = hocSinhAlls.Select(x => x.CCCD).OrderByDescending(x => x).ToArray();
+                var arrCCCD = _cacheLayer.GetAllArrCCCD();
                 var config = _sysConfigCL.GetConfigByKey(CodeConfigEnum.AutomaticallyGraded.ToStringValue());
                 bool isAutoGraded = false;
                 if(config != null)
@@ -436,18 +441,24 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                 }
                 
                 //// Kiểm tra dữ liệu của file excel
-                var validationRules = HocSinhValidationRules.GetRulesHocSinhNew(monThis, danTocs, arrayCccd, isAutoGraded);
+                var validationRules = HocSinhValidationRules.GetRulesHocSinhNew(monThis, danTocs, arrCCCD, isAutoGraded);
                 var checkValue = CheckValidDataTable(dataFromFile, validationRules);
 
                 if (checkValue.Item2 > 0)
                 {
-                    string excelFilePath = SaveDataTableErrorToExcel(checkValue.Item1, model.NguoiThucHien);
+                    var columnConfigs = CreateExcelColumnConfigs();
+                    // lưu file error excel và trả về đường dẫn
+                    string excelFilePath = _excelProcess.SaveDataTableErrorToExcel(checkValue.Item1, model.NguoiThucHien, _prefixNameFile
+                      , columnConfigs, _appPaths.UploadFileExcelError_HocSinhTruong, _appPaths.GetFileExcelError_HocSinhTruong);
                     var outputData = new
                     {
                         Path = excelFilePath,
                     };
                     return ResponseHelper.BadRequestHaveData("Thêm danh sách học sinh thất bại. Vui lòng tải tệp lỗi để kiểm tra và thử lại!", outputData);
                 }
+
+                //Xếp loại tự động
+                dataFromFile = GraduationType.CalculateGraduationFields(dataFromFile);
 
                 //Map từ datatable sang List<HocSinhImportViewModel>
                 List<HocSinhImportViewModel> hocSinhImports = ModelProvider.CreateListFromTable<HocSinhImportViewModel>(dataFromFile);
@@ -457,14 +468,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                     hocSinh.IdDanhMucTotNghiep = model.IdDanhMucTotNghiep;
                     hocSinh.NgayTao = DateTime.Now;
                     hocSinh.NguoiTao = model.NguoiThucHien;
-                    
-                    hocSinh.IdKhoaThi = model.IdKhoaThi;
-                    var resultEvaluate = GraduationType.AutoEvaluateGraduation(hocSinh.HocLuc, hocSinh.KetQua, hocSinh.XepLoai, hocSinh.HanhKiem,
-                                                       hocSinh.DiemTB, hocSinh.DiemMonNV, hocSinh.DiemMonTO, hocSinh.DienXTN, hocSinh.LanDauTotNghiep);
-                    hocSinh.HocLuc = resultEvaluate.HocLuc;
-                    hocSinh.KetQua = resultEvaluate.KetQua;
-                    hocSinh.XepLoai = resultEvaluate.XepLoai;
-
                     hocSinh.KetQuaHocTaps = new List<KetQuaHocTapModel>
                     {
                         new KetQuaHocTapModel { MaMon = hocSinh.MonNV, Diem = hocSinh.DiemMonNV ?? 0 },
@@ -479,22 +482,20 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                 List<HocSinhModel> hocSinhs = _mapper.Map<List<HocSinhModel>>(hocSinhImports);
                 // gọi cache
                 var response = await _cacheLayer.ImportHocSinh(hocSinhs, model.IdTruong, model.IdDanhMucTotNghiep);
+                var columnConfigSucces = CreateExcelColumnSuccess();
+                // lưu file error excel và trả về đường dẫn
+                string excelPath = _excelProcess.SaveDataTableErrorToExcel(dataFromFile, model.NguoiThucHien, _prefixNameFile
+                  , columnConfigSucces, _appPaths.UploadFileExcelSuccess_HocSinhTruong, _appPaths.GetFileExcelSuccess_HocSinhTruong);
+
+                var data = new
+                {
+                    Path = excelPath,
+                };
+
                 if (response.ErrorCode == (int)HocSinhEnum.Fail)
-                    return ResponseHelper.BadRequest(_localizer.GetImportErrorMessage(NameControllerEnum.HocSinh.ToStringValue()));
-                if (response.ErrorCode == (int)HocSinhEnum.ExistCccd)
-                    return ResponseHelper.BadRequest(_localizer.GetAlreadyExistMessage(HocSinhInFoEnum.CCCD.ToStringValue()), response.ErrorMessage);
-                if (response.ErrorCode == (int)HocSinhEnum.ExistSTT)
-                    return ResponseHelper.BadRequest(_localizer.GetAlreadyExistMessage(HocSinhInFoEnum.STT.ToStringValue()), response.ErrorMessage);
-                if (response.ErrorCode == (int)HocSinhEnum.NotExistTruong)
-                    return ResponseHelper.NotFound(_localizer.GetNotExistMessage(NameControllerEnum.Truong.ToStringValue()));
-                if (response.ErrorCode == (int)HocSinhEnum.NotExistHTDT)
-                    return ResponseHelper.NotFound(_localizer.GetNotExistMessage(NameControllerEnum.HinhThucDaoTao.ToStringValue()));
-                if (response.ErrorCode == (int)HocSinhEnum.NotExistDanhMucTotNghiep)
-                    return ResponseHelper.NotFound(_localizer.GetNotExistMessage(NameControllerEnum.DanhMucTotNghiep.ToStringValue()));
-                if (response.ErrorCode == (int)HocSinhEnum.NotMatchHtdt)
-                    return ResponseHelper.NotFound("Hình thức đào tạo của trường không khớp với danh mục tốt nghiệp");
+                    return ResponseHelper.BadRequestHaveData("Thêm danh sách học sinh thất bại", data);
                 else
-                    return ResponseHelper.Success(_localizer.GetImportSuccessMessage(NameControllerEnum.HocSinh.ToStringValue()));
+                    return ResponseHelper.SuccessHaveData("Thêm danh sách học sinh thành công", data);
             }
             catch (Exception ex)
             {
@@ -502,37 +503,96 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                 return ResponseHelper.Error500(ex.Message);
             }
         }
-
-
-        private string SaveDataTableErrorToExcel(DataTable dataTable, string nguoiThucHien)
+        private List<ExcelColumnConfig> CreateExcelColumnConfigs()
         {
-            // Generate a unique file name, you can customize the logic as needed
-            string fileName = $"{nguoiThucHien + "_" + _prefixNameFile}";
-            string uploadDirectory = _appPaths.UploadFileExcelError_HocSinhTruong;
-
-            string filePath = Path.Combine(uploadDirectory, fileName); // Specify the directory to save the file
-
-            // Ensure the directory exists
-            Directory.CreateDirectory(uploadDirectory);
-
-            // Remove the "ErrorCode" column if it exists
-            if (dataTable.Columns.Contains("ErrorCode"))
+            var columnConfigs = new List<ExcelColumnConfig>
             {
-                dataTable.Columns.Remove("ErrorCode");
-            }
-            // Save DataTable to Excel using ClosedXML
-            using (var workbook = new XLWorkbook())
+                new ExcelColumnConfig { Label = "STT", Description = "Số thứ tự", Danger=true},
+                new ExcelColumnConfig { Label = "HoTen", Description = "Họ và tên", Danger=true },
+                new ExcelColumnConfig { Label = "CCCD", Description = "CCCD", Danger=true },
+                new ExcelColumnConfig { Label = "GioiTinh", Description = "Giới tính", Danger=true },
+                new ExcelColumnConfig { Label = "NgaySinh", Description = "Ngày sinh", Danger=true },
+                new ExcelColumnConfig { Label = "NoiSinh", Description = "Nơi sinh", Danger=true },
+                new ExcelColumnConfig { Label = "DanToc", Description = "Dân Tộc", Danger=true },
+                new ExcelColumnConfig { Label = "DiaChi", Description = "Địa chỉ", Danger=true },
+                new ExcelColumnConfig { Label = "SoHieuVanBang", Description = "Số hiệu văn bằng", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "SoVaoSoCapBang", Description = "Số vào sổ cấp bằng", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "HoiDongThi", Description = "Hội đồng thi", Danger=true },
+                new ExcelColumnConfig { Label = "Lop", Description = "Lớp", Danger=true },
+                new ExcelColumnConfig { Label = "HanhKiem", Description = "Hạnh Kiểm", Danger=true },
+                new ExcelColumnConfig { Label = "DiemTB", Description = "Điểm Trung Bình", Danger=true },
+                new ExcelColumnConfig { Label = "HocLuc", Description = "Học Lực", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "KetQua", Description = "Kết quả tốt nghiệp", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "XepLoai", Description = "Xếp loại tốt nghiệp", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "LanDauTotNghiep", Description = "Lần đầu tốt nghiệp" },
+                new ExcelColumnConfig { Label = "MonNV", Description = "Môn Ngữ văn" },
+                new ExcelColumnConfig { Label = "MonTO", Description = "Môn Toán" },
+                new ExcelColumnConfig { Label = "Mon3", Description = "Môn 3" },
+                new ExcelColumnConfig { Label = "Mon4", Description = "Môn 4" },
+                new ExcelColumnConfig { Label = "Mon5", Description = "Môn 5" },
+                new ExcelColumnConfig { Label = "Mon6", Description = "Môn 6" },
+                new ExcelColumnConfig { Label = "DiemMonNV", Description = "Điểm môn NV" },
+                new ExcelColumnConfig { Label = "DiemMonTO", Description = "Điểm môn Toán" },
+                new ExcelColumnConfig { Label = "DiemMon3", Description = "Điểm môn 3" },
+                new ExcelColumnConfig { Label = "DiemMon4", Description = "Điểm môn 4" },
+                new ExcelColumnConfig { Label = "DiemMon5", Description = "Điểm môn 5" },
+                new ExcelColumnConfig { Label = "DiemMon6", Description = "Điểm môn 6" },
+                new ExcelColumnConfig { Label = "DiemKK", Description = "Điểm khuyến khích" },
+                new ExcelColumnConfig { Label = "DienXT", Description = "Diện xét tuyển" },
+                new ExcelColumnConfig { Label = "DiemXTN", Description = "Điểm xét tốt nghiệp" },
+                new ExcelColumnConfig { Label = "MaDKThi", Description = "Mã đăng ký thi" },
+                new ExcelColumnConfig { Label = "TenDKThi", Description = "Tên đăng ký thi" },
+                new ExcelColumnConfig { Label = "GhiChu", Description = "Ghi chú" },
+                new ExcelColumnConfig { Label = "Message", Description = "Thông báo lỗi" },
+
+            };
+
+            return columnConfigs;
+        }
+
+        private List<ExcelColumnConfig> CreateExcelColumnSuccess()
+        {
+            var columnConfigs = new List<ExcelColumnConfig>
             {
-                var worksheet = workbook.Worksheets.Add("ImportError");
+                new ExcelColumnConfig { Label = "STT", Description = "Số thứ tự", Danger=true},
+                new ExcelColumnConfig { Label = "HoTen", Description = "Họ và tên", Danger=true },
+                new ExcelColumnConfig { Label = "CCCD", Description = "CCCD", Danger=true },
+                new ExcelColumnConfig { Label = "GioiTinh", Description = "Giới tính", Danger=true },
+                new ExcelColumnConfig { Label = "NgaySinh", Description = "Ngày sinh", Danger=true },
+                new ExcelColumnConfig { Label = "NoiSinh", Description = "Nơi sinh", Danger=true },
+                new ExcelColumnConfig { Label = "DanToc", Description = "Dân Tộc", Danger=true },
+                new ExcelColumnConfig { Label = "DiaChi", Description = "Địa chỉ", Danger=true },
+                new ExcelColumnConfig { Label = "SoHieuVanBang", Description = "Số hiệu văn bằng", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "SoVaoSoCapBang", Description = "Số vào sổ cấp bằng", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "HoiDongThi", Description = "Hội đồng thi", Danger=true },
+                new ExcelColumnConfig { Label = "Lop", Description = "Lớp", Danger=true },
+                new ExcelColumnConfig { Label = "HanhKiem", Description = "Hạnh Kiểm", Danger=true },
+                new ExcelColumnConfig { Label = "DiemTB", Description = "Điểm Trung Bình", Danger=true },
+                new ExcelColumnConfig { Label = "HocLuc", Description = "Học Lực", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "KetQua", Description = "Kết quả tốt nghiệp", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "XepLoai", Description = "Xếp loại tốt nghiệp", BackgroundYellow = true },
+                new ExcelColumnConfig { Label = "LanDauTotNghiep", Description = "Lần đầu tốt nghiệp" },
+                new ExcelColumnConfig { Label = "MonNV", Description = "Môn Ngữ văn" },
+                new ExcelColumnConfig { Label = "MonTO", Description = "Môn Toán" },
+                new ExcelColumnConfig { Label = "Mon3", Description = "Môn 3" },
+                new ExcelColumnConfig { Label = "Mon4", Description = "Môn 4" },
+                new ExcelColumnConfig { Label = "Mon5", Description = "Môn 5" },
+                new ExcelColumnConfig { Label = "Mon6", Description = "Môn 6" },
+                new ExcelColumnConfig { Label = "DiemMonNV", Description = "Điểm môn NV" },
+                new ExcelColumnConfig { Label = "DiemMonTO", Description = "Điểm môn Toán" },
+                new ExcelColumnConfig { Label = "DiemMon3", Description = "Điểm môn 3" },
+                new ExcelColumnConfig { Label = "DiemMon4", Description = "Điểm môn 4" },
+                new ExcelColumnConfig { Label = "DiemMon5", Description = "Điểm môn 5" },
+                new ExcelColumnConfig { Label = "DiemMon6", Description = "Điểm môn 6" },
+                new ExcelColumnConfig { Label = "DiemKK", Description = "Điểm khuyến khích" },
+                new ExcelColumnConfig { Label = "DienXT", Description = "Diện xét tuyển" },
+                new ExcelColumnConfig { Label = "DiemXTN", Description = "Điểm xét tốt nghiệp" },
+                new ExcelColumnConfig { Label = "MaDKThi", Description = "Mã đăng ký thi" },
+                new ExcelColumnConfig { Label = "TenDKThi", Description = "Tên đăng ký thi" },
+                new ExcelColumnConfig { Label = "GhiChu", Description = "Ghi chú" },
+            };
 
-                // Load the data from DataTable to worksheet
-                worksheet.Cell(1, 1).InsertTable(dataTable);
-
-                // Save the workbook to a file
-                workbook.SaveAs(filePath);
-            }
-
-            return _appPaths.GetFileExcelError_HocSinhTruong + "/" + fileName;
+            return columnConfigs;
         }
     }
 }

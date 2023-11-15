@@ -1,6 +1,7 @@
 ﻿using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Data;
+using System.Globalization;
 
 namespace CenIT.DegreeManagement.CoreAPI.Processor.ExcelProcess
 {
@@ -38,7 +39,9 @@ namespace CenIT.DegreeManagement.CoreAPI.Processor.ExcelProcess
                     for (int cellIndex = 0; cellIndex < row.LastCellNum; cellIndex++)
                     {
                         ICell cell = row.GetCell(cellIndex);
-                        dataRow[cellIndex] = cell?.ToString() ?? string.Empty;
+         
+
+                       dataRow[cellIndex] = cell?.ToString() ?? string.Empty;
                     }
 
                     // Thêm DataRow vào DataTable
@@ -48,7 +51,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Processor.ExcelProcess
 
             return dataTable;
         }
-
         private static bool IsRowEmpty(IRow row)
         {
             foreach (var cell in row.Cells)
@@ -58,7 +60,5 @@ namespace CenIT.DegreeManagement.CoreAPI.Processor.ExcelProcess
             }
             return true;
         }
-
-
     }
 }

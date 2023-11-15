@@ -736,6 +736,20 @@ namespace CenIT.DegreeManagement.CoreAPI.Caching.DuLieuHocSinh
             return hocSinhs;
         }
 
+        public string[] GetAllArrCCCD()
+        {
+            string rawKey = string.Concat("HocSinhs-GetAllArrCCCD-");
+
+            // See if the item is in the cache
+            string[] arrCCCD = _cache.GetCacheKey<string[]> (rawKey, _masterCacheKey)!;
+
+            if (arrCCCD != null) return arrCCCD;
+            // Item not found in cache - retrieve it and insert it into the cache
+            arrCCCD = _BL.GetAllArrCCCD();
+            _cache.AddCacheItem(rawKey, arrCCCD);
+            return arrCCCD;
+        }
+
         public async Task<HocSinhResult> SaveImport(string idTruong,string idDanhMucTotNghiep ,List<HocSinhModel> models)
         {
             var result = await _BL.SaveImport(idTruong, idDanhMucTotNghiep, models);

@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using CenIT.DegreeManagement.CoreAPI.Core.Utils;
+using System.Data;
 
 
 namespace CenIT.DegreeManagement.CoreAPI.Core.Helpers

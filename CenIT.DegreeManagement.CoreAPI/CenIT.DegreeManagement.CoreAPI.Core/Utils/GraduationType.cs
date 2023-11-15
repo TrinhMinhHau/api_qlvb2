@@ -2,6 +2,7 @@
 using CenIT.DegreeManagement.CoreAPI.Core.Enums.XepLoai;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,45 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Utils
             public string XepLoai { get; set; }
         }
 
+        //Xếp loại tốt nghiệp, học lực và kiểm trả đậu hoặc rớt tự động dành cho danh sách
+        public static DataTable CalculateGraduationFields(DataTable inputTable)
+        {
+            DataTable resultTable = inputTable.Clone();
+
+            foreach (DataRow row in inputTable.Rows)
+            {
+                string hocLuc = row["HocLuc"].ToString();
+                string ketQua = row["KetQua"].ToString();
+                string xepLoai = row["XepLoai"].ToString();
+                string hanhKiem = row["HanhKiem"].ToString();
+                string dtbString = row["DiemTB"].ToString();
+                string diemNguVanString = row["DiemMonNV"].ToString();
+                string diemToanString = row["DiemMonTO"].ToString();
+
+
+                double dtb = double.TryParse(dtbString, out var result) ? result : 0.0;
+                double diemNguVan = double.TryParse(diemNguVanString, out var dnv) ? dnv : 0.0;
+                double diemToan = double.TryParse(diemToanString, out var dt) ? dt : 0.0;
+
+                string dienXT = row["DienXT"]?.ToString();
+                string isLanDauXTN = row["LanDauTotNghiep"]?.ToString();
+
+                // Tính toán giá trị mới cho các trường
+                var evaluationResult = GraduationType.AutoEvaluateGraduation(hocLuc, ketQua, xepLoai, hanhKiem, dtb, diemNguVan, diemToan, dienXT, isLanDauXTN);
+
+                // Thêm các giá trị mới vào DataTable kết quả
+                DataRow resultRow = resultTable.NewRow();
+                resultRow.ItemArray = row.ItemArray;
+                resultRow["HocLuc"] = evaluationResult.HocLuc;
+                resultRow["KetQua"] = evaluationResult.KetQua;
+                resultRow["XepLoai"] = evaluationResult.XepLoai;
+                resultTable.Rows.Add(resultRow);
+            }
+
+            return resultTable;
+        }
+
+        // Xếp loại tốt nghiệp, học lực và kiểm trả đậu hoặc rớt tự động danh cho 1 học sinh 
         public static EvaluationResult AutoEvaluateGraduation(string hocLuc, string ketQua, string xepLoai, string hanhKiem,double? dtb,
                                     double? diemNguVan, double? diemToan, string dienXT, string isLanDauXTN)
         {
@@ -32,6 +72,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Utils
             };
         }
 
+        //Xếp loại tốt nghiệp
         private static string CheckGraduationType(string hanhkiem, string hocluc, string isLanDauXTN, string ketQua)
         {
             if (!string.IsNullOrEmpty(isLanDauXTN) && !string.IsNullOrEmpty(ketQua))
@@ -57,6 +98,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Utils
             }
         }
 
+        //Xếp loại học lực
         private static string ClassifyGrade(double? dtb)
         {
             if (dtb >= 8 && dtb <= 10)
@@ -86,6 +128,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Utils
             }
         }
 
+        //Kiểm tra đậu hay rớt
         private static string CheckPassOrFail(string hanhKiem, string hocLuc, double? dtb, double? diemNguVan, double? diemToan, string dienXT, string isLanDauXTN)
         {
             List<string> hanhKiemListPass = new List<string> { XepLoaiHanhKiem.Excellent.ToStringValue(), XepLoaiHanhKiem.Good.ToStringValue(), XepLoaiHanhKiem.Average.ToStringValue() };
@@ -126,12 +169,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Utils
             return hanhkiem == XepLoaiHanhKiem.Good.ToStringValue();
         }
 
-        private static bool HanhKiemTrungBinh(string hanhkiem)
-        {
-            return hanhkiem == XepLoaiHanhKiem.Average.ToStringValue();
-        }
-
-
         private static bool HocLucGioi(string hocluc)
         {
             return hocluc == XepLoaiHocLucEnum.Excellent.ToStringValue();
@@ -141,11 +178,5 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Utils
         {
             return hocluc == XepLoaiHocLucEnum.Good.ToStringValue();
         }
-
-        private static bool HocLucTrungBinh(string hocluc)
-        {
-            return hocluc == XepLoaiHocLucEnum.Average.ToStringValue();
-        }
-
     }
 }

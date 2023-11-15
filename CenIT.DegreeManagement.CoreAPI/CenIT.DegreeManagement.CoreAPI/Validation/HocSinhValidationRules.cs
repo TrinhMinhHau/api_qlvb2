@@ -344,7 +344,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Validation
                 new ValidationRule
                 {
                     ColumnName = "HocLuc",
-                    IsRequired = isAutoGraded,
+                    IsRequired = !isAutoGraded,
                     CustomValidator = value => string.IsNullOrEmpty(value) || value.ToLower() == XepLoaiHocLucEnum.Excellent.ToStringValue().ToLower()
                                                                            || value.ToLower() == XepLoaiHocLucEnum.Good.ToStringValue().ToLower()
                                                                            || value.ToLower() == XepLoaiHocLucEnum.Average.ToStringValue().ToLower()
@@ -352,12 +352,14 @@ namespace CenIT.DegreeManagement.CoreAPI.Validation
                 },
                   new ValidationRule
                 {
-                    ColumnName = "Mon1",
+                    ColumnName = "MonNV",
+                    IsRequired = true,
                     CustomValidator = value => string.IsNullOrEmpty(value) || monThis.Contains(value)
                 },
                     new ValidationRule
                 {
-                    ColumnName = "Mon2",
+                    ColumnName = "MonTO",
+                    IsRequired = true,
                      CustomValidator = value => string.IsNullOrEmpty(value) || monThis.Contains(value)
                 },
                       new ValidationRule
@@ -382,7 +384,14 @@ namespace CenIT.DegreeManagement.CoreAPI.Validation
                 },
                 new ValidationRule
                 {
-                    ColumnName = "DiemMon2",
+                    ColumnName = "DiemMonNV",
+                    IsRequired = true,
+                    CustomValidator = value => string.IsNullOrEmpty(value) || Double.TryParse(value, out _)
+                },
+                new ValidationRule
+                {
+                    ColumnName = "DiemMonTO",
+                    IsRequired = true,
                     CustomValidator = value => string.IsNullOrEmpty(value) || Double.TryParse(value, out _)
                 },
                  new ValidationRule

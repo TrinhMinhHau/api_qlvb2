@@ -112,6 +112,25 @@ namespace CenIT.DegreeManagement.CoreAPI.Core.Helpers
             };
         }
 
+        public static IActionResult SuccessHaveData(string message,object data ,string? name = null)
+        {
+            if (message != null && name != null && message.Contains("-"))
+            {
+                message = message.Replace("-", "[" + name + "]");
+            }
+            var result = new
+            {
+                isSuccess = true,
+                data = data,
+                message = message
+            };
+
+            return new JsonResult(result)
+            {
+                StatusCode = 200
+            };
+        }
+
         /// <summary>
         /// Creates an IActionResult with a response indicating a resource not found, containing the specified message.
         /// </summary>
