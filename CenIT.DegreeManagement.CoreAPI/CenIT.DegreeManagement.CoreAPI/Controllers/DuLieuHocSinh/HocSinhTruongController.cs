@@ -468,6 +468,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                     hocSinh.IdDanhMucTotNghiep = model.IdDanhMucTotNghiep;
                     hocSinh.NgayTao = DateTime.Now;
                     hocSinh.NguoiTao = model.NguoiThucHien;
+                    hocSinh.IdKhoaThi = model.IdKhoaThi;
                     hocSinh.KetQuaHocTaps = new List<KetQuaHocTapModel>
                     {
                         new KetQuaHocTapModel { MaMon = hocSinh.MonNV, Diem = hocSinh.DiemMonNV ?? 0 },
