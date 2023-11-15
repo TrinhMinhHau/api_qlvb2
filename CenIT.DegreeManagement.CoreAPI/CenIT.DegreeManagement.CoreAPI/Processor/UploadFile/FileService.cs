@@ -1,6 +1,7 @@
 ﻿using CenIT.DegreeManagement.CoreAPI.Controllers.Account;
 using CenIT.DegreeManagement.CoreAPI.Core.Helpers;
 using CenIT.DegreeManagement.CoreAPI.Resources;
+using Google.Api.Gax.ResourceNames;
 using NPOI.HPSF;
 
 namespace CenIT.DegreeManagement.CoreAPI.Processor.UploadFile
@@ -158,37 +159,35 @@ namespace CenIT.DegreeManagement.CoreAPI.Processor.UploadFile
         }
 
 
-        public bool DeleteImage(string imageFileName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Tuple<int, string> SaveFileExel(MemoryStream stream, string folderName, string fileName, string fileExtension)
+        public int DeleteFile(string fileName, string pathFolder)
         {
             try
             {
                 var contentPath = _environment.ContentRootPath;
-                var path = Path.Combine(contentPath, "Uploads" + "/" + folderName);
-                if (!Directory.Exists(path))
+                var path = Path.Combine(contentPath, pathFolder);
+                var filePath = Path.Combine(path, fileName);
+
+                if (File.Exists(filePath))
                 {
-                    Directory.CreateDirectory(path);
+                    File.Delete(filePath);
+
+                    return 1;
                 }
-
-                var filePath = Path.Combine(path, fileName + fileExtension);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                else
                 {
-                    stream.CopyTo(fileStream);
+                    return -1;
                 }
-
-                var url = $"/Resources/{folderName}/{fileName}{fileExtension}";
-
-                return new Tuple<int, string>(1, url);
             }
             catch (Exception ex)
             {
-                return new Tuple<int, string>(0, _localizer.GetUploadErrorMessage());
+                string errorMessage = $"Error deleting file: {ex.Message}";
+                return 0;
             }
+        }
+
+        public Tuple<int, string> SaveFileExel(MemoryStream stream, string folderName, string fileName, string fileExtension)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -74,6 +74,16 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
+//builder.Services.Configure<AppPaths>(builder.Configuration.GetSection("AppSettings:Paths"));
+//builder.Services.AddSingleton<AppPaths>();
+builder.Services.AddSingleton(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+    var appPaths = new AppPaths();
+    configuration.GetSection("AppSettings:Paths").Bind(appPaths, c => c.BindNonPublicProperties = true);
+    return appPaths;
+});
+
 // Add services and config logger
 var _logger = new LoggerConfiguration().ReadFrom
     .Configuration(builder.Configuration).Enrich.FromLogContext().CreateLogger();
