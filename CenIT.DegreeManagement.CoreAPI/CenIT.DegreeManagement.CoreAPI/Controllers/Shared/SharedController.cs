@@ -6,6 +6,7 @@ using CenIT.DegreeManagement.CoreAPI.Caching.Phoi;
 using CenIT.DegreeManagement.CoreAPI.Caching.Sys;
 using CenIT.DegreeManagement.CoreAPI.Core.Caching;
 using CenIT.DegreeManagement.CoreAPI.Core.Enums;
+using CenIT.DegreeManagement.CoreAPI.Core.Enums.CauHinh;
 using CenIT.DegreeManagement.CoreAPI.Core.Helpers;
 using CenIT.DegreeManagement.CoreAPI.Core.Models;
 using CenIT.DegreeManagement.CoreAPI.Core.Utils;
@@ -272,5 +273,14 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.Shared
             return ResponseHelper.NotFound(_localizer.GetNotExistMessage(NameControllerEnum.FunctionAction.ToStringValue()));
         }
 
+
+        [HttpGet("GetCauHinhTuDongXepLoai")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCauHinhTuDongXepLoai()
+        {
+            var config = _sysConfigCL.GetConfigByKey(CodeConfigEnum.AutomaticallyGraded.ToStringValue());
+
+            return ResponseHelper.Ok(config);
+        }
     }
 }
