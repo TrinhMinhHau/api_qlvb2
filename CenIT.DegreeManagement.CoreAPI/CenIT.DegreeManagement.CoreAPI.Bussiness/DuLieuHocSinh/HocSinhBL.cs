@@ -768,6 +768,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
             string matchNoiSinh = string.IsNullOrEmpty(modelSearch.NoiSinh) ? "" : $@"'NoiSinh': '{modelSearch.NoiSinh}',";
             string matchSearch = string.IsNullOrEmpty(modelSearch.Search) ? "" : $@"'HoTen': '{modelSearch.HoTen}',";
             string matchIdDanhMucTotNghiep = string.IsNullOrEmpty(modelSearch.IdDanhMucTotNghiep) ? "" : $@"'IdDanhMucTotNghiep': '{modelSearch.IdDanhMucTotNghiep}',";
+            string matchIdTruong = string.IsNullOrEmpty(idTruong) ? "" : $@"'IdTruong': '{idTruong}',";
 
             var cmdRes = $@"
                         {{
@@ -777,7 +778,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
                                  {{
                                     $match: {{
                                       Xoa: false,
-                                      IdTruong: '{idTruong}', 
+                                       {matchIdTruong}
                                        {matchTrangThai}
                                        {matchHoTen}
                                        {matchCCCD}                                   
