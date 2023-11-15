@@ -27,9 +27,10 @@ namespace CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DuLieuHocSinh
         public string? HanhKiem { get; set; } = string.Empty;
         public string? HocLuc { get; set; } = string.Empty;
         public string? GhiChu { get; set; } = string.Empty;
-        public string DienXTN { get; set; } = string.Empty;
+        public string? DienXTN { get; set; } = string.Empty;
         public double DiemXTN { get; set; } = 0;
-        public double DiemTB12 { get; set; } = 0;
+        [CustomRequired]
+        public double DiemTB { get; set; } = 0;
         public string NguoiThucHien { get; set; } = string.Empty;
         public string? MaDKThi { get; set; } = string.Empty;
         public string? TenDKThi { get; set; } = string.Empty;

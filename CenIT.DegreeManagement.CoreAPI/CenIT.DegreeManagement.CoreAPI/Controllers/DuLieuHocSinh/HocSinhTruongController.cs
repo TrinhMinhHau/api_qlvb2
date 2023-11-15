@@ -428,7 +428,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                 }
 
                 //Đọc file excel
-                DataTable dataFromFile = ExcelProcess.ReadExcelData(model.FileExcel);
+                DataTable dataFromFile = _excelProcess.ReadExcelData(model.FileExcel);
 
                 var monThis = _monThiCL.GetAllMaMonThi();
                 var danTocs = _danTocCL.GetAllTenDanToc();

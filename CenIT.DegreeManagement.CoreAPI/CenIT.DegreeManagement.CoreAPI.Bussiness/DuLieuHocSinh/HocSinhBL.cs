@@ -42,9 +42,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
 
         #region Dùng chung
 
-
-
-
         /// <summary>
         /// Thêm danh sách học sinh
         /// </summary>
@@ -308,7 +305,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
                                 .Count();
             return (int)hocSinhs;
         }
-
         public string[] GetAllArrCCCD()
         {
             var filterBuilder = Builders<HocSinhModel>.Filter;
@@ -2963,7 +2959,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
 
             return (int)HocSinhEnum.Success;
         }
-
 
         private bool KiemTraDanhMucTotNghiep(string idDanhMucTotNghiep)
         {

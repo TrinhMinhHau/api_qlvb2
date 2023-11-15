@@ -100,8 +100,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Processor.ExcelProcess
                     cell1.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
                     cell1.Style.Border.RightBorder = XLBorderStyleValues.Thin;
                     cell1.Style.Border.TopBorder = XLBorderStyleValues.Thin;
-                    cell1.Style.Font.FontName = "Times New Roman";
-                    cell1.Style.Font.FontSize = 13;
                     // Apply styling based on config
                     if (config.Danger)
                     {
@@ -117,8 +115,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Processor.ExcelProcess
                         cell2.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
                         cell2.Style.Border.RightBorder = XLBorderStyleValues.Thin;
                         cell2.Style.Border.TopBorder = XLBorderStyleValues.Thin;
-                        cell2.Style.Font.FontName = "Times New Roman";
-                        cell2.Style.Font.FontSize = 13;
+  
                     }
 
                     if (config.BackgroundYellow)
@@ -144,10 +141,9 @@ namespace CenIT.DegreeManagement.CoreAPI.Processor.ExcelProcess
                     foreach (var rowWithError in rowsWithErrors)
                     {
                         var rowIndex = dataTable.Rows.IndexOf(rowWithError) + 3; // Offset by 3 because data starts from row 3
-                        worksheet.Row(rowIndex).Style.Fill.BackgroundColor = XLColor.Red;
+                        worksheet.Row(rowIndex).Style.Font.FontColor = XLColor.Red;
                     }
                 }
-
 
                 worksheet.Columns().AdjustToContents();
 
