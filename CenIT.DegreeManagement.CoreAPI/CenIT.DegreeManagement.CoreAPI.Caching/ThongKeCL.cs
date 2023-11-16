@@ -3,6 +3,7 @@ using CenIT.DegreeManagement.CoreAPI.Bussiness.Phoi;
 using CenIT.DegreeManagement.CoreAPI.Core.Caching;
 using CenIT.DegreeManagement.CoreAPI.Core.Models;
 using CenIT.DegreeManagement.CoreAPI.Core.Utils;
+using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.Search;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.ThongKe;
@@ -214,5 +215,27 @@ namespace CenIT.DegreeManagement.CoreAPI.Caching
             _cache.AddCacheItem(rawKeyTotal, total, _masterCacheKey);
             return hocSinhs;
         }
+
+
+        public List<HocSinhVM> GetThongKeHocSinhByNamOrDMTN(out int total, HSByTruongNamOrDMTNSearchModel modelSearch)
+        {
+            string objectKey = EHashMd5.FromObject(modelSearch);
+            string rawKey = string.Concat("ThongKe-GetThongKeHocSinhByNamOrDMTN-", objectKey);
+            string rawKeyTotal = string.Concat(rawKey, "-Total");
+
+            total = 0;
+            int? cacheTotal = _cache.GetCacheKey<int>(rawKeyTotal);
+            total = cacheTotal ?? 0;
+
+            // See if the item is in the cache
+            List<HocSinhVM> hocSinhs = _cache.GetCacheKey<List<HocSinhVM>>(rawKey, _masterCacheKey)!;
+            if (hocSinhs != null) return hocSinhs;
+            // Item not found in cache - retrieve it and insert it into the cache
+            hocSinhs = _BL.GetThongKeHocSinhByNamOrDMTN(out total, modelSearch);
+            _cache.AddCacheItem(rawKey, hocSinhs);
+            _cache.AddCacheItem(rawKeyTotal, total);
+            return hocSinhs;
+        }
+
     }
 }

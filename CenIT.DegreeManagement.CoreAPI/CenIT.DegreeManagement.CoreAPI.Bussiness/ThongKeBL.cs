@@ -1040,6 +1040,8 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
         public List<HocSinhListModel> GetHocSinhDTNByTruongAndNamOrDMTN(out int total, HSByTruongNamOrDMTNSearchModel modelSearch)
         {
             var matchIdDanhMucTotNghiep = string.IsNullOrEmpty(modelSearch.IdDanhMucTotNghiep) ? "" : $"'IdDanhMucTotNghiep': '{modelSearch.IdDanhMucTotNghiep}',";
+            var matchIdNamThi = string.IsNullOrEmpty(modelSearch.IdNamThi) ? "" : $"{{$match: {{'DanhMucTotNghiep.IdNamThi': '{modelSearch.IdNamThi}',}},}},";
+
             string order = MongoPipeline.GenerateSortPipeline(modelSearch.Order, modelSearch.OrderDir, "HoTen");
             int skip = (modelSearch.StartIndex - 1) * modelSearch.PageSize;
             var cmdRes = $@"
@@ -1051,8 +1053,9 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
                                     $match: {{
                                       Xoa: false,
                                       IdTruong: '{modelSearch.IdTruong}',
+                                      KetQua: 'x'
                                       TrangThai: {{$gte: {(int)TrangThaiHocSinhEnum.ChoDuyet}}},
-{matchIdDanhMucTotNghiep}
+                                        {matchIdDanhMucTotNghiep}
                                     }},
                                   }},
                                   {{
@@ -1078,11 +1081,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
                                       DanhMucTotNghieps: 0,
                                     }},
                                   }},
-                                  {{
-                                    $match: {{
-                                      'DanhMucTotNghiep.IdNamThi': '{modelSearch.IdNamThi}',
-                                    }},
-                                  }},
+                                  {matchIdNamThi}
                                   {{
                                     $addFields: {{
                                       IdTruong: {{ $toObjectId: '$IdTruong' }},
@@ -1141,6 +1140,57 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness
             var data = _mongoDatabase.RunCommand<object>(cmdRes);
             var hocSinhs = ModelProvider.ExtractDataFromMongoList<HocSinhListModel>(data, out total);
             return hocSinhs;
+        }
+    
+        public List<HocSinhVM> GetThongKeHocSinhByNamOrDMTN(out int total, HSByTruongNamOrDMTNSearchModel modelSearch)
+        {
+            var collectionHocSinh = _mongoDatabase.GetCollection<HocSinhVM>(_collectionHocSinhName);
+            var collectionDmtn= _mongoDatabase.GetCollection<DanhMucTotNghiepModel>(_collectionNameDanhMucTotNghiep);
+
+            var hocSinhs = collectionHocSinh.Find(x=>x.IdTruong == modelSearch.IdTruong).ToList()
+                              .Join(
+                              collectionDmtn.AsQueryable(),
+                              hs => hs.IdDanhMucTotNghiep,
+                              dmtn => dmtn.Id,
+                              (hs, dmtn) =>
+                              {
+                                  hs.DanhMucTotNghiep = dmtn;
+                                  return hs;
+                              }
+                          ).Where(x=>x.DanhMucTotNghiep.IdNamThi == modelSearch.IdNamThi).ToList();
+
+            if (!string.IsNullOrEmpty(modelSearch.IdDanhMucTotNghiep))
+            {
+                hocSinhs = hocSinhs.Where(x => x.IdDanhMucTotNghiep == modelSearch.IdDanhMucTotNghiep).ToList();
+            }
+
+            total = hocSinhs.Count;
+
+            switch (modelSearch.Order)
+            {
+                case "0":
+                    hocSinhs = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? hocSinhs.OrderBy(x => x.STT).ToList()
+                        : hocSinhs.OrderByDescending(x => x.STT).ToList();
+                    break;
+                case "1":
+                    hocSinhs = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? hocSinhs.OrderBy(x => x.HoTen.Split(' ').LastOrDefault()).ToList()
+                        : hocSinhs.OrderByDescending(x => x.HoTen.Split(' ').LastOrDefault()).ToList();
+                    break;
+                case "2":
+                    hocSinhs = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? hocSinhs.OrderBy(x => x.CCCD).ToList()
+                        : hocSinhs.OrderByDescending(x => x.CCCD).ToList();
+                    break;
+            }
+            if (modelSearch.PageSize > 0)
+            {
+                hocSinhs = hocSinhs.Skip(modelSearch.PageSize * modelSearch.StartIndex).Take(modelSearch.PageSize).ToList();
+            }
+            return hocSinhs;
+
+
         }
     }
 }

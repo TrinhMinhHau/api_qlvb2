@@ -16,10 +16,12 @@ using CenIT.DegreeManagement.CoreAPI.Models.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Processor;
 using CenIT.DegreeManagement.CoreAPI.Processor.UploadFile;
 using CenIT.DegreeManagement.CoreAPI.Resources;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using static Google.Apis.Requests.BatchRequest;
 
 namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 {
@@ -278,15 +280,22 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 
         [HttpGet("GetAllTruong")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAllTruong(string idDanhMucTotNghiep, string nguoiThucHien)
+        public async Task<IActionResult> GetAllTruong([FromQuery] string idDanhMucTotNghiep, [FromQuery] string nguoiThucHien,[FromQuery] SearchParamModel searchParam)
         {
             var user = _sysUserCL.GetByUsername(nguoiThucHien);
             if (!string.IsNullOrEmpty(user.TruongID) && CheckString.CheckBsonId(user.TruongID))
             {
-               var response =  _cacheLayer.GetTruong(user.TruongID, idDanhMucTotNghiep);
-                var dataMapper = _mapper.Map<List<TruongHocViaDanhMucTotNghiepDTO>>(response);
+                int total;
+                var data = _cacheLayer.GetTruong(out total,user.TruongID, idDanhMucTotNghiep, searchParam);
+                var dataMapper = _mapper.Map<List<TruongHocViaDanhMucTotNghiepDTO>>(data);
 
-                return ResponseHelper.Ok(dataMapper);
+                var outputData = new
+                {
+                    truongs = dataMapper,
+                    totalRow = total,
+                };
+
+                return ResponseHelper.Ok(outputData);
 
             }
 
@@ -295,13 +304,19 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 
         [HttpGet("GetTruongHasPermision")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetTruongHasPermision(string idDanhMucTotNghiep)
+        public async Task<IActionResult> GetTruongHasPermision([FromQuery] string idDanhMucTotNghiep,[FromQuery] SearchParamModel searchParam)
         {
-         
-            var response = _cacheLayer.GetTruongHasPermision(idDanhMucTotNghiep);
-            var dataMapper = _mapper.Map<List<TruongHocViaDMTNHasPermisionDTO>>(response);
+            int total;
+            var data = _cacheLayer.GetTruongHasPermision(out total,idDanhMucTotNghiep, searchParam);
+            var dataMapper = _mapper.Map<List<TruongHocViaDMTNHasPermisionDTO>>(data);
 
-            return ResponseHelper.Ok(dataMapper);
+            var outputData = new
+            {
+                truongs = dataMapper,
+                totalRow = total,
+            };
+
+            return ResponseHelper.Ok(outputData);
         }
 
         [HttpPost("GuiThongBaoTungTruong")]
@@ -352,6 +367,51 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
             if (messageConfig != null)
             {
                 deviceTokens.ForEach(x=>
+                {
+                    MessageInputModel message = new MessageInputModel()
+                    {
+                        IdMessage = Guid.NewGuid().ToString(),
+                        Action = action,
+                        MessageType = MessageTypeEnum.TruongGuiPhong.ToStringValue(),
+                        SendingMethod = SendingMethodEnum.Notification.ToStringValue(),
+                        Title = messageConfig.Title,
+                        Content = string.IsNullOrEmpty(noiDung) ? messageConfig.Body : noiDung,
+                        Color = messageConfig.Color,
+                        Recipient = null,
+                        Url = messageConfig.URL,
+                        IDDonVi = x.TruongId,
+                    };
+
+                    var sendMessage = _messageCL.Save(message);
+                    BackgroundJob.Enqueue(() => _backgroundJobManager.SendNotificationInBackground(message.Title, message.Content, x.DeviceTokens));
+                });
+
+
+
+                return ResponseHelper.Success("Gửi thông báo thành công");
+            }
+
+            return ResponseHelper.BadRequest("Gửi thông báo thất bạo");
+
+        }
+
+
+        [HttpPost("GuiThongBaoTatCaCacTruong")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GuiThongBaoTatCaCacTruong(string noiDung, string idDanhMucTotNghiep)
+        {
+            int total;
+            var searchParam = new SearchParamModel() { PageSize = -1 };
+            var truongs = _cacheLayer.GetTruongHasPermision(out total, idDanhMucTotNghiep, searchParam);
+            string idTruongs = string.Join(",", truongs.Select(truong => truong.IdTruong));
+            var deviceTokens = _sysDeviceTokenCL.GetByIdDonVis(idTruongs);
+            string actionName = HttpContext.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>()?.ActionName!;
+            string controllerName = HttpContext.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>()?.ControllerName!;
+            string action = EString.GenerateActionString(controllerName, actionName);
+            var messageConfig = _sysMessageConfigCL.GetByActionName(action);
+            if (messageConfig != null)
+            {
+                deviceTokens.ForEach(x =>
                 {
                     MessageInputModel message = new MessageInputModel()
                     {

@@ -1,5 +1,6 @@
 ﻿using CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Core.Caching;
+using CenIT.DegreeManagement.CoreAPI.Core.Models;
 using CenIT.DegreeManagement.CoreAPI.Core.Utils;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DanhMuc;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DuLieuHocSinh;
@@ -303,24 +304,36 @@ namespace CenIT.DegreeManagement.CoreAPI.Caching.DuLieuHocSinh
             return result;
         }
 
-        public List<TruongHocViaDanhMucTotNghiepModel> GetTruong(string idDonVi, string idDanhMucTotNghiep)
+        public List<TruongHocViaDanhMucTotNghiepModel> GetTruong(out int total, string idDonVi, string idDanhMucTotNghiep, SearchParamModel modelSearch)
         {
-            string rawKey = string.Concat("DanhMucTotNghieps-GetTruong", idDonVi, idDanhMucTotNghiep);
+            string objectKey = EHashMd5.FromObject(modelSearch);
+            string rawKey = string.Concat("DanhMucTotNghieps-GetTruong-", objectKey, idDanhMucTotNghiep, idDonVi);
+            string rawKeyTotal = string.Concat(rawKey, "-Total");
+
+            total = 0;
+            int? cacheTotal = _cache.GetCacheKey<int>(rawKeyTotal);
+            total = cacheTotal ?? 0;
 
             List<TruongHocViaDanhMucTotNghiepModel> truongsWithPermission = _cache.GetCacheKey<List<TruongHocViaDanhMucTotNghiepModel>>(rawKey, _masterCacheKey)!;
             if (truongsWithPermission != null) return truongsWithPermission;
-            truongsWithPermission = _BL.GetTruong(idDonVi, idDanhMucTotNghiep);
+            truongsWithPermission = _BL.GetTruong(out total,idDonVi ,idDanhMucTotNghiep, modelSearch);
             _cache.AddCacheItem(rawKey, truongsWithPermission, _masterCacheKey);
             return truongsWithPermission;
         }
 
-        public List<TruongHocViaDanhMucTotNghiepModel> GetTruongHasPermision(string idDanhMucTotNghiep)
+        public List<TruongHocViaDanhMucTotNghiepModel> GetTruongHasPermision(out int total, string idDanhMucTotNghiep, SearchParamModel modelSearch)
         {
-            string rawKey = string.Concat("DanhMucTotNghieps-GetTruongHasPermision", idDanhMucTotNghiep);
+            string objectKey = EHashMd5.FromObject(modelSearch);
+            string rawKey = string.Concat("DanhMucTotNghieps-GetTruongHasPermision-", objectKey, idDanhMucTotNghiep);
+            string rawKeyTotal = string.Concat(rawKey, "-Total");
+
+            total = 0;
+            int? cacheTotal = _cache.GetCacheKey<int>(rawKeyTotal);
+            total = cacheTotal ?? 0;
 
             List<TruongHocViaDanhMucTotNghiepModel> truongs = _cache.GetCacheKey<List<TruongHocViaDanhMucTotNghiepModel>>(rawKey, _masterCacheKey)!;
             if (truongs != null) return truongs;
-            truongs = _BL.GetTruongHasPermision(idDanhMucTotNghiep);
+            truongs = _BL.GetTruongHasPermision(out total,idDanhMucTotNghiep, modelSearch);
             _cache.AddCacheItem(rawKey, truongs, _masterCacheKey);
             return truongs;
         }

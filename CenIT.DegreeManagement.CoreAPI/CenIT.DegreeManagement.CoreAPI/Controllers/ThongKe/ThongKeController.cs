@@ -140,10 +140,11 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.ThongKe
         /// <returns></returns>
 
         [HttpGet("GetHocSinhDTNByTruongAndNamOrDMTN")]
+        [AllowAnonymous]
         public IActionResult GetHocSinhDTNByTruongAndNamOrDMTN([FromQuery] HSByTruongNamOrDMTNSearchModel modelSearch)
         {
             int total;
-            var data = _thongKeCL.GetHocSinhDTNByTruongAndNamOrDMTN(out total, modelSearch);
+            var data = _thongKeCL.GetThongKeHocSinhByNamOrDMTN(out total, modelSearch);
 
             var outputData = new
             {

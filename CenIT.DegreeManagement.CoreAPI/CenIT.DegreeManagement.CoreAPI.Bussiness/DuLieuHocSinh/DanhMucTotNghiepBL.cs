@@ -1,8 +1,10 @@
 ﻿using CenIT.DegreeManagement.CoreAPI.Core.Enums;
+using CenIT.DegreeManagement.CoreAPI.Core.Models;
 using CenIT.DegreeManagement.CoreAPI.Core.Provider;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Input.DuLieuHocSinh;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DanhMuc;
 using CenIT.DegreeManagement.CoreAPI.Model.Models.Output.DuLieuHocSinh;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -788,7 +790,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
             }
         }
 
-        public List<TruongHocViaDanhMucTotNghiepModel> GetTruong(string idDonVi, string idDanhMucTotNghiep)
+        public List<TruongHocViaDanhMucTotNghiepModel> GetTruong(out int total ,string idDonVi, string idDanhMucTotNghiep, SearchParamModel modelSearch)
         {
             var truongCollection = _mongoDatabase.GetCollection<TruongModel>(_collectionNameTruong);
             var dmtnViaTruongCollection = _mongoDatabase.GetCollection<DanhMucTotNghiepViaTruongModel>(_collectionDMTNViaTruong);
@@ -815,11 +817,29 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
                 };
             }).ToList();
 
-            return truongsWithPermission;
+            total = truongsWithPermission.Count;
 
+            switch (modelSearch.Order)
+            {
+                case "0":
+                    truongsWithPermission = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? truongsWithPermission.OrderBy(x => x.TenTruong).ToList()
+                        : truongsWithPermission.OrderByDescending(x => x.TenTruong).ToList();
+                    break;
+                case "1":
+                    truongsWithPermission = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? truongsWithPermission.OrderBy(x => x.TenTruong).ToList()
+                        : truongsWithPermission.OrderByDescending(x => x.TenTruong).ToList();
+                    break;
+            }
+            if (modelSearch.PageSize > 0)
+            {
+                truongsWithPermission = truongsWithPermission.Skip(modelSearch.PageSize * modelSearch.StartIndex).Take(modelSearch.PageSize).ToList();
+            }
+            return truongsWithPermission;
         }
 
-        public List<TruongHocViaDanhMucTotNghiepModel> GetTruongHasPermision(string idDanhMucTotNghiep)
+        public List<TruongHocViaDanhMucTotNghiepModel> GetTruongHasPermision(out int total,string idDanhMucTotNghiep, SearchParamModel modelSearch)
         {
             var truongCollection = _mongoDatabase.GetCollection<TruongModel>(_collectionNameTruong);
             var dmtnViaTruongCollection = _mongoDatabase.GetCollection<TruongHocViaDanhMucTotNghiepModel>(_collectionDMTNViaTruong);
@@ -845,6 +865,25 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
                     )
                     .ToList();
 
+            total = result.Count;
+
+            switch (modelSearch.Order)
+            {
+                case "0":
+                    result = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? result.OrderBy(x => x.TenTruong).ToList()
+                        : result.OrderByDescending(x => x.TenTruong).ToList();
+                    break;
+                case "1":
+                    result = modelSearch.OrderDir.ToUpper() == "ASC"
+                        ? result.OrderBy(x => x.TenTruong).ToList()
+                        : result.OrderByDescending(x => x.TenTruong).ToList();
+                    break;
+            }
+            if (modelSearch.PageSize > 0)
+            {
+                result = result.Skip(modelSearch.PageSize * modelSearch.StartIndex).Take(modelSearch.PageSize).ToList();
+            }
 
 
             return result;
