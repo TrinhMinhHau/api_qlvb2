@@ -311,13 +311,15 @@ namespace CenIT.DegreeManagement.CoreAPI.Caching.DuLieuHocSinh
             string rawKeyTotal = string.Concat(rawKey, "-Total");
 
             total = 0;
-            int? cacheTotal = _cache.GetCacheKey<int>(rawKeyTotal);
+            int? cacheTotal = _cache.GetCacheKey<int>(rawKeyTotal, _masterCacheKey);
             total = cacheTotal ?? 0;
 
             List<TruongHocViaDanhMucTotNghiepModel> truongsWithPermission = _cache.GetCacheKey<List<TruongHocViaDanhMucTotNghiepModel>>(rawKey, _masterCacheKey)!;
             if (truongsWithPermission != null) return truongsWithPermission;
             truongsWithPermission = _BL.GetTruong(out total,idDonVi ,idDanhMucTotNghiep, modelSearch);
             _cache.AddCacheItem(rawKey, truongsWithPermission, _masterCacheKey);
+            _cache.AddCacheItem(rawKeyTotal, total, _masterCacheKey);
+
             return truongsWithPermission;
         }
 
@@ -328,13 +330,14 @@ namespace CenIT.DegreeManagement.CoreAPI.Caching.DuLieuHocSinh
             string rawKeyTotal = string.Concat(rawKey, "-Total");
 
             total = 0;
-            int? cacheTotal = _cache.GetCacheKey<int>(rawKeyTotal);
+            int? cacheTotal = _cache.GetCacheKey<int>(rawKeyTotal, _masterCacheKey);
             total = cacheTotal ?? 0;
 
             List<TruongHocViaDanhMucTotNghiepModel> truongs = _cache.GetCacheKey<List<TruongHocViaDanhMucTotNghiepModel>>(rawKey, _masterCacheKey)!;
             if (truongs != null) return truongs;
             truongs = _BL.GetTruongHasPermision(out total,idDanhMucTotNghiep, modelSearch);
             _cache.AddCacheItem(rawKey, truongs, _masterCacheKey);
+            _cache.AddCacheItem(rawKeyTotal, total, _masterCacheKey);
             return truongs;
         }
     }
