@@ -45,8 +45,6 @@ namespace CenIT.DegreeManagement.CoreAPI.Processor
             CreateMap<HocSinhViewModel, HocSinhDTO>();
             CreateMap<HocSinhInBangModel, HocSinhInBangDTO>();
 
-
-
         }
     }
 }
