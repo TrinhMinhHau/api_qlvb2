@@ -767,6 +767,9 @@ namespace CenIT.DegreeManagement.CoreAPI.Bussiness.DuLieuHocSinh
                     return (int)EnumDanhMucTotNghiep.NotFoundTruong;
                 }
 
+                var deleteFilter = Builders<DanhMucTotNghiepViaTruongModel>.Filter.Eq("IdDanhMucTotNghiep", model.IdDanhMucTotNghiep);
+                await dmtnViaTruongCollection.DeleteManyAsync(deleteFilter);
+
                 List<DanhMucTotNghiepViaTruongModel> danhSachDanhMuc = new List<DanhMucTotNghiepViaTruongModel>();
                 foreach (var idTruong in idTruongsArray)
                 {
