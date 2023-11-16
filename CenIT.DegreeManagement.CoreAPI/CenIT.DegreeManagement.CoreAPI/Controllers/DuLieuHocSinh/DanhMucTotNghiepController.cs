@@ -306,7 +306,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 
         [HttpPost("GuiThongBaoTungTruong")]
         [AllowAnonymous]
-        public async Task<IActionResult> GuiThongBaoTungTruong([FromBody]string idTruong)
+        public async Task<IActionResult> GuiThongBaoTungTruong([FromBody]string idTruong, string noiDung)
         {
             var deviceTokens = _sysDeviceTokenCL.GetByIdDonVi(idTruong);
             string actionName = HttpContext.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>()?.ActionName!;
@@ -322,7 +322,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                     MessageType = MessageTypeEnum.TruongGuiPhong.ToStringValue(),
                     SendingMethod = SendingMethodEnum.Notification.ToStringValue(),
                     Title = messageConfig.Title,
-                    Content = messageConfig.Body,
+                    Content = string.IsNullOrEmpty(noiDung) ?  messageConfig.Body : noiDung,
                     Color = messageConfig.Color,
                     Recipient = null,
                     Url = messageConfig.URL,
@@ -342,7 +342,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
 
         [HttpPost("GuiThongBaoNhieuTruong")]
         [AllowAnonymous]
-        public async Task<IActionResult> GuiThongBaoNhieuTruong([FromBody]string idTruongs)
+        public async Task<IActionResult> GuiThongBaoNhieuTruong([FromBody]string idTruongs, string noiDung)
         {
             var deviceTokens = _sysDeviceTokenCL.GetByIdDonVis(idTruongs);
             string actionName = HttpContext.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>()?.ActionName!;
@@ -360,7 +360,7 @@ namespace CenIT.DegreeManagement.CoreAPI.Controllers.DuLieuHocSinh
                         MessageType = MessageTypeEnum.TruongGuiPhong.ToStringValue(),
                         SendingMethod = SendingMethodEnum.Notification.ToStringValue(),
                         Title = messageConfig.Title,
-                        Content = messageConfig.Body,
+                        Content = string.IsNullOrEmpty(noiDung) ? messageConfig.Body : noiDung,
                         Color = messageConfig.Color,
                         Recipient = null,
                         Url = messageConfig.URL,
